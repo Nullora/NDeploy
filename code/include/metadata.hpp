@@ -17,13 +17,13 @@ namespace mdata{ //metadata handling
         std::wstring stream = filename + L":" + alt_stream;
 
         HANDLE file = CreateFileW(stream.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-        if(file==INVALID_HANDLE_VALUE) return L"";
+        if(file==INVALID_HANDLE_VALUE) 	return L"UNSIGNED"; //ALTERNATE STREAM DOESNT EXIST
 
         wchar_t buffer[50] = {}; //for now can only up to 50 chars, if any more than that were fucked. ill fix later
         DWORD bytes_read;
         bool success = ReadFile(file, buffer, sizeof(buffer) - sizeof(wchar_t), &bytes_read, nullptr);
         CloseHandle(file);
-        if(!success) return L"";
+        if(!success) return L"UNSIGNED"; // ERROR READING ALTERNATE STREAM
         return buffer;
 
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include<vector>
 #include<filesystem>
+#include<metadata.hpp>
 
 namespace dir{ //directory search
     std::vector<std::filesystem::path> GetAllFiles(std::filesystem::path path){
@@ -19,5 +20,14 @@ namespace dir{ //directory search
         
     }
 
-    
+    std::vector<std::filesystem::path> GetAllSignedFiles(std::filesystem::path path, std::wstring alt_stream){
+        std::vector<std::filesystem::path> all_files = GetAllFiles(path);
+        std::vector<std::filesystem::path> signed_files = {};
+        for(auto& path : all_files){
+            if(mdata::ReadId(path, alt_stream)!=L"UNSIGNED"){
+                signed_files.push_back(path);
+            }
+        }
+        return signed_files;
+    }
 }
