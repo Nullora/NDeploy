@@ -20,11 +20,11 @@ namespace dir{ //directory search
         
     }
 
-    std::vector<std::filesystem::path> GetAllSignedFiles(std::filesystem::path path, std::wstring alt_stream){
+    std::vector<std::filesystem::path> GetAllSignedFiles(std::filesystem::path path, std::string alt_stream){
         std::vector<std::filesystem::path> all_files = GetAllFiles(path);
         std::vector<std::filesystem::path> signed_files = {};
         for(auto& path : all_files){
-            if(mdata::ReadId(path, alt_stream)!=L"UNSIGNED"){
+            if(mdata::ReadId(path.string(), alt_stream)!="UNSIGNED"){
                 signed_files.push_back(path);
             }
         }

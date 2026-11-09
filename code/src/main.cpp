@@ -6,6 +6,8 @@
 #include <string>
 using namespace std;
 
+const wstring alt_stream = L"NDEP_ID";
+
 int main(int argc, char* argv[]){
     if(argc < 2) return 0;
 
@@ -17,10 +19,5 @@ int main(int argc, char* argv[]){
 
     //get command using tkn
     CMDS command = tkn::GetCommand({argv[1]}); //fixed argv[1] to get first argument
-
-    vector<filesystem::path> files = dir::GetAllSignedFiles(filesystem::current_path(), L"NDEP_ID");
-    for(auto& file : files){
-        cout << file << endl;
-    }
 
 }
