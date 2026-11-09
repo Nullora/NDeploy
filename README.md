@@ -1,12 +1,12 @@
 # Novus Deploy - Windows Edition
-This is a Windows Version of [NovusDeploy]{https://github.com/Nullora/NovusDeploy},
+This is a Windows Version of [NovusDeploy](https://github.com/Nullora/NovusDeploy),
 A local project manager to keep your code up-to-date across multiple files.
 
 - It uses Alternate Data Streams to staple data onto your file's metadata, allowing Ndeploy to track them and recognize them with 0 overhead.
 
 ## Requirements
 ### Executable
-- You just need to be on windows since NTFS ADS is specific to windows, download code/build/ndep.exe and put it in PATH. [tutorial]{https://windowsloop.com/how-to-add-to-windows-path/}.
+- You just need to be on windows since NTFS ADS is specific to windows, download code/build/ndep.exe and put it in PATH. [tutorial](https://windowsloop.com/how-to-add-to-windows-path/).
 ### Actual Uncompiled Code
 - You need `Make`, `gcc` 
 
