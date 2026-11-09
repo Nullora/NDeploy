@@ -1,5 +1,5 @@
+#pragma once
 #include<string>
-#include<vector>
 #include<unordered_map>
 
 
@@ -13,11 +13,10 @@ enum class CMDS {
 };
 
 class tkn{ //tokenize command into enum
-private:
-    static std::unordered_map<std::string, CMDS> command_map;
 public:
-
+    static inline std::unordered_map<std::string, CMDS> command_map;
     static void init_cmdMap(){
+        //much faster than previous if/else slop
         command_map["sign"] = CMDS::SIGN;
         command_map["import"] = CMDS::IMPORT;
         command_map["update"] = CMDS::UPDATE;
