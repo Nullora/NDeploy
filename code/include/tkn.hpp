@@ -4,6 +4,7 @@
 
 enum class CMDS {
     SIGN,
+    UNSIGN,
     IMPORT,
     UPDATE,
     PUSH,
@@ -17,6 +18,8 @@ public:
     static void init_cmdMap(){
         //much faster than previous if/else slop
         command_map["sign"] = CMDS::SIGN;
+        command_map["unsign"] = CMDS::UNSIGN;
+        
         command_map["import"] = CMDS::IMPORT;
         command_map["update"] = CMDS::UPDATE;
         command_map["push"] = CMDS::PUSH;
