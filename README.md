@@ -44,3 +44,8 @@ If you have single header libraries that you share across multiple projects (lik
 Im really proud of this project cz i actually looked at my old code, saw flaws, and made it much much better!
 I also think using the hashed content for smart merging is really clever, i copied it from git itself so it made me feel really good.
 I hope this project benefits you just as it's benefiting me rn!
+
+## AI usage
+I use AI in this project, heres where exactly:
+- code/include/hash.hpp
+Thats it lol. I did it cz honestly, im not gonna dive into cryptography. This was supposed to be a quick tool to help me manage annoying hanging reused header files, not a deep dive into SHA256 and how to make one from scratch.
