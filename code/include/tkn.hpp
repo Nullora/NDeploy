@@ -12,19 +12,20 @@ enum class CMDS {
     UNK
 };
 
-class tkn{ //tokenize command into enum
+class tkn{
 public:
-    static inline std::unordered_map<std::string, CMDS> command_map;
-    static void init_cmdMap(){
-        //much faster than previous if/else slop
-        command_map["sign"] = CMDS::SIGN;
-        command_map["unsign"] = CMDS::UNSIGN;
-        
-        command_map["import"] = CMDS::IMPORT;
-        command_map["update"] = CMDS::UPDATE;
-        command_map["push"] = CMDS::PUSH;
-        command_map["rename"] = CMDS::RENAME;
-    }
+//get rid of a dedicated init() function and just do this
+    static inline const std::unordered_map<std::string, CMDS> command_map = []{
+        //faster than if/else i had on the linux version
+        std::unordered_map<std::string, CMDS> m;
+        m["sign"] = CMDS::SIGN;
+        m["unsign"] = CMDS::UNSIGN;
+        m["import"] = CMDS::IMPORT;
+        m["update"] = CMDS::UPDATE;
+        m["push"] = CMDS::PUSH;
+        m["rename"] = CMDS::RENAME;
+        return m;
+    }();
 
     static CMDS GetCommand(const std::string& input){
         auto it = command_map.find(input);

@@ -11,9 +11,6 @@ const string alt_stream = "NDEP";
 int main(int argc, char* argv[]){
     if(argc < 2) return 0;
 
-    //initializing
-    tkn::init_cmdMap();
-
     //fill vector with arguments
     vector<string> variables(argv + 2, argv + argc);
 
