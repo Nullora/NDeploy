@@ -12,11 +12,13 @@ enum class RETURN {
     INVALID_NAME
 };
 
-struct Library{
+struct FileRep{
     RETURN last_return;
     std::string id;
     std::string content_hash;
     std::string copy_id;
+    std::string version_id;
+    std::filesystem::path og_path;
 };
 
 namespace mdata{ //metadata handling
@@ -46,8 +48,8 @@ namespace mdata{ //metadata handling
 
     }
 
-    Library SignFile(std::filesystem::path path, std::string name, std::string alt_stream, bool force_sign = false){
-        Library lib;
+    FileRep SignFile(std::filesystem::path path, std::string name, std::string alt_stream, bool force_sign = false){
+        FileRep lib;
         //check if file is already signed
         if(ReadMData(path.string(),alt_stream,"ID")!="UNSIGNED" && !force_sign){
             lib.last_return = RETURN::FILE_ALREADY_SIGNED;
@@ -78,16 +80,21 @@ namespace mdata{ //metadata handling
         //when `ndep import` is used, it changes copy_id to a hash of the directory where the library was imported. it also adds the hash to a database to track all distributed copies
         WriteMData(path.string(), alt_stream, "COPY_ID", "OG_LIB");
 
+        //write version_id. version_id tracks the official version of the file assigned by ndep.
+        WriteMData(path.string(), alt_stream, "VERSION_ID", "1.0.0");
+
         lib.id = name;
         lib.content_hash = content_hash;
         lib.copy_id = "OG_LIB";
+        lib.version_id = "1.0.0";
+        lib.og_path = path;
         lib.last_return = RETURN::SIGN_SUCCESS;
 
         return lib;
     }
 
     bool UnsignFile(const std::string path, const std::string& alt_stream){
-        std::vector<std::string> stream_sectors = {"ID", "CONTENT_HASH", "COPY_ID"};
+        std::vector<std::string> stream_sectors = {"ID", "CONTENT_HASH", "COPY_ID", "VERSION_ID"};
         std::string stream;
         bool state = false;
         for(auto& sector : stream_sectors){

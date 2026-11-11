@@ -7,6 +7,7 @@
 using namespace std;
 
 const string alt_stream = "NDEP";
+const string rep_name = ".ndep";
 
 int main(int argc, char* argv[]){
     if(argc < 2) return 0;
@@ -16,7 +17,7 @@ int main(int argc, char* argv[]){
 
     //get command using tkn
     CMDS command = tkn::GetCommand({argv[1]}); //fixed argv[1] to get first argument
-    cmd::handleCommands(command, variables, alt_stream);
+    cmd::handleCommands(command, variables, alt_stream, rep_name);
     //[temp]
     vector<filesystem::path> signed_files = dir::GetAllSignedFiles(filesystem::current_path(), alt_stream);
     for(auto& file : signed_files){

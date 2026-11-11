@@ -2,6 +2,7 @@
 #include<vector>
 #include<filesystem>
 #include<metadata.hpp>
+#include<hash.hpp>
 
 
 namespace dir{ //finding files, filtering files, and managing original files.
@@ -30,5 +31,31 @@ namespace dir{ //finding files, filtering files, and managing original files.
             }
         }
         return signed_files;
+    }
+
+
+    bool MakeRepositoryObject(FileRep& filerep, std::string rep_path){
+        std::ifstream file0(filerep.og_path, std::ios::binary);
+        //c++ interepts it as a function so we use double parentheses to clarify declaration. we could use brace initialization but ->
+        //that can select `intialized_list` ->
+        //constructor if possible, to focrce iterator range constructor we instead use double parentheses :3
+        std::vector<unsigned char> bytes ( (std::istreambuf_iterator<char>(file0) ), std::istreambuf_iterator<char>() );
+        file0.close();
+        std::string content_hash = nhash::SHA256File(filerep.og_path);
+        if(content_hash != filerep.content_hash) return false;
+        //construct object path.
+        std::string name = filerep.content_hash.substr(2); //filename is remainder of content hash
+        std::string dir = filerep.content_hash.substr(0,2); //parent folder of filename is first 2 characters of content hash
+        std::filesystem::path object_path = std::filesystem::path(rep_path) / "objects" / dir / name;
+        if (std::filesystem::exists(object_path)) return false;
+
+        std::filesystem::create_directories(object_path.parent_path()); //create parent folders if they dont exist
+        HANDLE file = CreateFileA(object_path.string().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if(file==INVALID_HANDLE_VALUE) return false;
+
+        DWORD written;
+        bool write = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
+        CloseHandle(file);
+        return write && written == bytes.size();
     }
 }
