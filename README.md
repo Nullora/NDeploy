@@ -15,7 +15,7 @@ A local project manager to keep your code up-to-date across multiple files.
 ```bash
 ndep sign {file_name} {library_name}
 ```
-This function signs a specific file using NTFS Alternate Data Streams (big fancy word for attaching data to file without changing its contents). This makes it so even if the file changes names or location, it will always maintain the sign.
+This function signs a specific file using NTFS Alternate Data Streams (big fancy word for attaching data to file without changing its contents). This makes it so even if the file changes names or location, it will always maintain the sign. It also copies the file and compresses it into a local repository.
 ```bash
 ndep unsign {file_name}
 ```

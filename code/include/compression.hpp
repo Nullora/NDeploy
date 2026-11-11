@@ -2,10 +2,9 @@
 #include<vector>
 #include<zlib.h>
 
-using namespace std;
 
 namespace compression{
-    bool Compress(const vector<unsigned char>& input, vector<unsigned char>& output){
+    bool Compress(const std::vector<unsigned char>& input, std::vector<unsigned char>& output){
         uLong source_size = static_cast<uLong>(input.size());
         uLongf compressed_size = compressBound(source_size);
         output.resize(compressed_size);

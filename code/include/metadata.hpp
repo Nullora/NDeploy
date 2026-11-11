@@ -3,28 +3,40 @@
 #include <string>
 #include<filesystem>
 #include"hash.hpp"
+#include<statics.hpp>
+
+#include <sys/stat.h>
+#include <fstream>
 
 
-enum class RETURN {
-    FILE_ALREADY_SIGNED,
-    SIGN_SUCCESS,
-    INVALID_FILE,
-    INVALID_NAME
-};
-
-struct FileRep{
-    RETURN last_return;
-    std::string id;
-    std::string content_hash;
-    std::string copy_id;
-    std::string version_id;
-    std::filesystem::path og_path;
-};
 
 namespace mdata{ //metadata handling
 
+
+    enum RETURN {
+        FILE_ALREADY_SIGNED,
+        SIGN_SUCCESS,
+        INVALID_FILE,
+        INVALID_NAME
+    };
+
+    struct FileRep{
+        RETURN last_return;
+        std::string id;
+        std::string content_hash;
+        std::string copy_id;
+        std::string version_id;
+        std::filesystem::path og_path;
+    };
+
+    inline bool exists(const std::string& name) {
+        struct stat buffer;   
+        return (stat (name.c_str(), &buffer) == 0); 
+    }
+
     bool WriteMData(const std::string& filename, const std::string& alt_stream, const std::string& stream_sector,const std::string& data){
         std::string stream = filename + ":" + alt_stream + "_" + stream_sector;
+        if(!exists(filename)) return false;
         HANDLE file = CreateFileA(stream.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
         if(file==INVALID_HANDLE_VALUE) return false;
         DWORD written;
