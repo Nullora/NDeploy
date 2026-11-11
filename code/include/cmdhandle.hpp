@@ -14,7 +14,10 @@ namespace cmd{
             case CMDS::SIGN:
                 file = mdata::SignFile(variables[0], variables[1], alt_stream, 1);
                 if(file.last_return!=RETURN::SIGN_SUCCESS) break;
-                if(!dir::MakeRepositoryObject(file, rep_name)) break;
+                if(!dir::MakeRepositoryObject(file, rep_name)){
+                    std::cout<<"error compressing/opening file. likely compressing lol \n";
+                    break;
+                }
                 std::cout<<"Successfully signed file. \n";
                 break;
             case CMDS::UNSIGN:

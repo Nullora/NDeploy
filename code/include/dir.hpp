@@ -3,6 +3,7 @@
 #include<filesystem>
 #include<metadata.hpp>
 #include<hash.hpp>
+#include"compression.hpp"
 
 
 namespace dir{ //finding files, filtering files, and managing original files.
@@ -43,6 +44,9 @@ namespace dir{ //finding files, filtering files, and managing original files.
         file0.close();
         std::string content_hash = nhash::SHA256File(filerep.og_path);
         if(content_hash != filerep.content_hash) return false;
+        //compress
+        std::vector<unsigned char> compressed_bytes;
+        if(!compression::Compress(bytes, compressed_bytes)) return false;
         //construct object path.
         std::string name = filerep.content_hash.substr(2); //filename is remainder of content hash
         std::string dir = filerep.content_hash.substr(0,2); //parent folder of filename is first 2 characters of content hash
@@ -54,8 +58,8 @@ namespace dir{ //finding files, filtering files, and managing original files.
         if(file==INVALID_HANDLE_VALUE) return false;
 
         DWORD written;
-        bool write = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
+        bool write = WriteFile(file, compressed_bytes.data(), static_cast<DWORD>(compressed_bytes.size()), &written, nullptr);
         CloseHandle(file);
-        return write && written == bytes.size();
+        return write && written == compressed_bytes.size();
     }
 }

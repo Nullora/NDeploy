@@ -1,7 +1,7 @@
-#include"tkn.hpp"
-#include"metadata.hpp"
-#include"dir.hpp"
-#include"cmdhandle.hpp"
+#include<tkn.hpp>
+#include<metadata.hpp>
+#include<dir.hpp>
+#include<cmdhandle.hpp>
 #include<vector>
 #include <string>
 using namespace std;
@@ -22,7 +22,7 @@ int main(int argc, char* argv[]){
     vector<filesystem::path> signed_files = dir::GetAllSignedFiles(filesystem::current_path(), alt_stream);
     for(auto& file : signed_files){
         cout << file << endl;
-        cout << mdata::ReadMData(file.string(), alt_stream, "ID") << endl;
+        cout << mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") << endl;
     }
 
 }

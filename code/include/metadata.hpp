@@ -39,7 +39,7 @@ namespace mdata{ //metadata handling
         HANDLE file = CreateFileA(stream.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if(file==INVALID_HANDLE_VALUE) 	return "UNSIGNED"; //ALTERNATE STREAM DOESNT EXIST
 
-        char buffer[50] = {}; //for now can only up to 50 chars, if any more than that were fucked. ill fix later
+        char buffer[100] = {}; //for now can only up to 50 chars, if any more than that were fucked. ill fix later
         DWORD bytes_read;
         bool success = ReadFile(file, buffer, sizeof(buffer), &bytes_read, nullptr);
         CloseHandle(file);
@@ -71,7 +71,8 @@ namespace mdata{ //metadata handling
 
         //write content hash. used to compare 2 files of the same identity but imported in different projects. useful when `ndep update` is used to not cause conflict between both versions
         std::ifstream file(path, std::ios::binary);
-        std::vector<unsigned char> bytes(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+        //most vexing parse slop
+        std::vector<unsigned char> bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         std::string content_hash = nhash::SHA256File(path);
         WriteMData(path.string(), alt_stream, "CONTENT_HASH", content_hash);
 
