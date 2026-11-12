@@ -15,4 +15,23 @@ namespace compression{
         output.resize(compressed_size);
         return true;
     }
+
+    //pure ai, fuck compression and zlib im not reading their 30 year old docs
+    static bool Uncompress(const std::vector<unsigned char>& input, std::vector<unsigned char>& output, size_t original_size){
+        uLongf dest_size = static_cast<uLongf>(original_size);
+
+        output.resize(dest_size);
+
+        int result = uncompress(output.data(), &dest_size, input.data(), static_cast<uLong>(input.size()));
+
+        if(result != Z_OK){
+            output.clear();
+            return false;
+        }
+
+        output.resize(dest_size);
+        return true;
+    }
+
+
 }

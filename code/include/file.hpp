@@ -11,7 +11,7 @@ public:
 
     static bool save_id_hash(const std::string& path){
         std::filesystem::create_directories(std::filesystem::path(path).parent_path());
-        HANDLE file = CreateFileA(path.c_str(), GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
+        HANDLE file = CreateFileA(path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
         if(file==INVALID_HANDLE_VALUE) return false;
         std::string out;
         for(auto& [id, hash] : id_hash_map){

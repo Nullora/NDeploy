@@ -6,6 +6,7 @@
 #include<vector>
 #include<string>
 #include<iostream>
+#include<filesystem>
 
 namespace cmd{
     void handleCommands(CMDS& cmd, const std::vector<std::string>& variables, const std::string& alt_stream, const std::string& rep_path){
@@ -23,17 +24,28 @@ namespace cmd{
                     break;
                 }
                 //MAKE OBJECT
-                dir_error = dir::MakeRepositoryObject(file, rep_path);
+                dir_error = dir::MakeRepositoryObject(file, rep_path, alt_stream);
                 if(dir_error!=dir::SUCCESS){
                     std::cout<<handler::HandleErrorMessage(dir_error);
                     break;
                 }
                 std::cout<<"Successfully signed file. \n";
                 break;
+
+            
             case CMDS::UNSIGN:
                 if(mdata::UnsignFile(variables[0], alt_stream)){
                     std::cout<<"unsignedfile. \n";
                 }
+                break;
+            
+            case CMDS::IMPORT:
+                dir_error = dir::ImportRepositoryObject(variables[0], std::filesystem::current_path().string(), rep_path, alt_stream);
+                if(dir_error!=dir::SUCCESS){
+                    std::cout<<handler::HandleErrorMessage(dir_error);
+                    break;
+                }
+                std::cout<<"Imported file. \n";
                 break;
         }
     }

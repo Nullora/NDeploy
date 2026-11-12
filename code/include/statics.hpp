@@ -32,6 +32,8 @@ public:
         m[dir::FILE_EXISTS] = "File already exists. \n";
         m[dir::COMPRESSION_ERROR] = "Compression error. \n";
         m[dir::INVALID_HANDLE] = "Invalid file handle from `CreateFileA` \n";
+        m[dir::INVALID_FILE] = "Invalid repository object. \n";
+        m[dir::INVALID_NAME] = "Library name doesnt exist.\n";
         return m;
     }();
 

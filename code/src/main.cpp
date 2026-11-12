@@ -23,8 +23,11 @@ int main(int argc, char* argv[]){
     //[temp]
     vector<filesystem::path> signed_files = dir::GetAllSignedFiles(filesystem::current_path(), alt_stream);
     for(auto& file : signed_files){
-        cout << file << endl;
+        cout << mdata::ReadMData(file.string(), alt_stream, "ID") << endl;
         cout << mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") << endl;
+    }
+    for(auto& [id, hash] : FileHandle::id_hash_map){
+        cout<<id<<": "<<hash<<endl;
     }
     FileHandle::save_id_hash(id_hash_path);
 

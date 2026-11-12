@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <fstream>
 
+#include<iostream>
+
 
 
 namespace mdata{ //metadata handling
@@ -65,7 +67,7 @@ namespace mdata{ //metadata handling
         FileRep lib;
         //check if name is taken. we do this at the top so we dont waste computing power before checking
         auto it = FileHandle::id_hash_map.find(name);
-        if(it!=FileHandle::id_hash_map.end()){
+        if(it!=FileHandle::id_hash_map.end() && !force_sign){
             lib.last_return = RETURN::INVALID_NAME;
             return lib;
         }
@@ -90,13 +92,6 @@ namespace mdata{ //metadata handling
             return lib;
         }
 
-        //write content hash. used to compare 2 files of the same identity but imported in different projects. useful when `ndep update` is used to not cause conflict between both versions
-        std::ifstream file(path, std::ios::binary);
-        //most vexing parse slop
-        std::vector<unsigned char> bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        std::string content_hash = nhash::SHA256File(path);
-        WriteMData(path.string(), alt_stream, "CONTENT_HASH", content_hash);
-
         //write copy_id. copy_id tracks the location of the current file.
         //when `ndep sign` is used it leaves the original file's copy_id = og_file. it changes the repository's version of that file's copy_id to rep_file
         //when `ndep import` is used, it changes copy_id to a hash of the directory where the library was imported. it also adds the hash to a database to track all distributed copies
@@ -105,6 +100,13 @@ namespace mdata{ //metadata handling
         //write version_id. version_id tracks the official version of the file assigned by ndep.
         WriteMData(path.string(), alt_stream, "VERSION_ID", "1.0.0");
 
+        //write content hash. used to compare 2 files of the same identity but imported in different projects. useful when `ndep update` is used to not cause conflict between both versions
+        std::ifstream file(path, std::ios::binary);
+        //most vexing parse slop
+        std::vector<unsigned char> bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        std::string content_hash = nhash::SHA256File(path);
+        WriteMData(path.string(), alt_stream, "CONTENT_HASH", content_hash);
+
         lib.id = name;
         lib.content_hash = content_hash;
         lib.copy_id = "OG_LIB";
@@ -112,7 +114,8 @@ namespace mdata{ //metadata handling
         lib.og_path = path;
         lib.last_return = RETURN::SIGN_SUCCESS;
 
-        FileHandle::id_hash_map.emplace(name, content_hash);
+        std::cout<<"SIGNFILE() >> "<<name<<": "<<content_hash<<std::endl;
+        FileHandle::id_hash_map[name] = content_hash;
 
         return lib;
     }
