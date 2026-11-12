@@ -2,8 +2,9 @@
 #include <Windows.h>
 #include <string>
 #include<filesystem>
-#include"hash.hpp"
+#include<hash.hpp>
 #include<statics.hpp>
+#include<file.hpp>
 
 #include <sys/stat.h>
 #include <fstream>
@@ -62,6 +63,14 @@ namespace mdata{ //metadata handling
 
     FileRep SignFile(std::filesystem::path path, std::string name, std::string alt_stream, bool force_sign = false){
         FileRep lib;
+        //check if name is taken. we do this at the top so we dont waste computing power before checking
+        auto it = FileHandle::id_hash_map.find(name);
+        if(it!=FileHandle::id_hash_map.end()){
+            lib.last_return = RETURN::INVALID_NAME;
+            return lib;
+        }
+
+
         //check if file is already signed
         if(ReadMData(path.string(),alt_stream,"ID")!="UNSIGNED" && !force_sign){
             lib.last_return = RETURN::FILE_ALREADY_SIGNED;
@@ -102,6 +111,8 @@ namespace mdata{ //metadata handling
         lib.version_id = "1.0.0";
         lib.og_path = path;
         lib.last_return = RETURN::SIGN_SUCCESS;
+
+        FileHandle::id_hash_map.emplace(name, content_hash);
 
         return lib;
     }

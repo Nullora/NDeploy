@@ -37,10 +37,10 @@ public:
 
     static inline const std::unordered_map<mdata::RETURN, std::string> mdata_error_map = []{
         std::unordered_map<mdata::RETURN, std::string> m;
-        m[mdata::INVALID_NAME] = "Invalid library name. \n";
+        m[mdata::INVALID_NAME] = "Invalid library name. Either already used or contains character `:` \n";
         m[mdata::INVALID_FILE] = "Invalid file. \n";
         m[mdata::SIGN_SUCCESS] = "Successfully signed file. \n";
-        m[mdata::FILE_ALREADY_SIGNED] = "File already has a signature. \n";
+        m[mdata::FILE_ALREADY_SIGNED] = "File already has a signature. Use force_sign if you wanna overwrite it. \n";
         return m;
     }();
 };

@@ -1,6 +1,6 @@
 CXX = g++
 LIBS = -lbcrypt -lz
-CXXFLAGS = -std=c++17 -O2 -Icode/include
+CXXFLAGS = -std=c++20 -O2 -Icode/include
 TARGET = code/build/ndep
 SRCS = code/src/main.cpp
 

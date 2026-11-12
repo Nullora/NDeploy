@@ -57,17 +57,17 @@ namespace dir{ //finding files, filtering files, and managing original files.
         file0.close();
         std::string content_hash = nhash::SHA256File(filerep.og_path);
 
-        //debug
-        std::cout << "Hash: [" << content_hash << "]\n";
-        std::cout << "Stored hash: [" << filerep.content_hash << "]\n";
-        std::cout << "Hash length: " << content_hash.size() << '\n';
+        //debug code, will go away (i think)
+        std::cout << "hash: [" << content_hash << "]\n";
+        std::cout << "stored hash: [" << filerep.content_hash << "]\n";
+        std::cout << "hash length: " << content_hash.size() << '\n';
 
-        //keep going |
+        //verify calculated hash and reported hash. could have been tampered with, u never know :3
         if(content_hash != filerep.content_hash) return INVALID_HASH;
         //compress
         std::vector<unsigned char> compressed_bytes;
         if(!compression::Compress(bytes, compressed_bytes)) return COMPRESSION_ERROR;
-        //construct object path.
+        //construct object path
         std::string name = filerep.content_hash.substr(2); //filename is remainder of content hash
         std::string dir = filerep.content_hash.substr(0,2); //parent folder of filename is first 2 characters of content hash
         std::filesystem::path object_path = std::filesystem::path(rep_path) / "objects" / dir / name;

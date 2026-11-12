@@ -29,7 +29,7 @@ namespace cmd{
                     break;
                 }
                 std::cout<<"Successfully signed file. \n";
-
+                break;
             case CMDS::UNSIGN:
                 if(mdata::UnsignFile(variables[0], alt_stream)){
                     std::cout<<"unsignedfile. \n";
