@@ -41,9 +41,6 @@ namespace cmd{
                     return handler::HandleErrorMessage(dir_error);
                 }
                 return "Imported file. \n";
-            
-            case CMDS::PUSH:
-                
         }
         return "ERROR? \n";
     }
