@@ -150,7 +150,8 @@ namespace dir{ //finding files, filtering files, and managing original files.
         std::string source_name = mdata::ReadMData(source, alt_stream, "ID");
 
         //get hash of update source
-        std::string source_hash = mdata::ReadMData(source, alt_stream, "CONTENT_HASH");
+        //we recalculate the hash instead of using the one in metadata cz were assuming the file contents changed, thus why the user is even running ndep update
+        std::string source_hash = nhash::SHA256File(source);
         //check hash of update source
         if(source_hash=="UNSIGNED") return UNSIGNED;
         if(hash==source_hash) return UPTODATE;
