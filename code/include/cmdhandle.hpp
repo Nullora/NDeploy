@@ -41,6 +41,13 @@ namespace cmd{
                     return handler::HandleErrorMessage(dir_error);
                 }
                 return "Imported file. \n";
+            
+            case CMDS::PUSH:
+                dir_error = dir::UpdateRepositoryObject(variables[0], variables[1], rep_path, alt_stream);
+                if(dir_error!=dir::SUCCESS){
+                    return handler::HandleErrorMessage(dir_error);
+                }
+                return "Pushed update to repo object. \n";
         }
         return "ERROR? \n";
     }

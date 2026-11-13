@@ -140,8 +140,8 @@ namespace dir{ //finding files, filtering files, and managing original files.
         return FAILURE;
     }
 
-    RETURN UpdateRepositoryObject(std::string& name, std::string& source, const std::string& rep_path, const std::string& alt_stream){
-        //get hash from id_hash_map
+    RETURN UpdateRepositoryObject(const std::string& name, const std::string& source, const std::string& rep_path, const std::string& alt_stream){
+        //get current hash from id_hash_map (saves the hash of repository objects, not original files.)
         auto it = FileHandle::id_hash_map.find(name);
         if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
         std::string hash = it->second;
@@ -150,7 +150,7 @@ namespace dir{ //finding files, filtering files, and managing original files.
         std::string source_name = mdata::ReadMData(source, alt_stream, "ID");
 
         //get hash of update source
-        //we recalculate the hash instead of using the one in metadata cz were assuming the file contents changed, thus why the user is even running ndep update
+        //we recalculate the hash instead of using the one in metadata cz were assuming the file contents changed, thus why the user is even running ndep push
         std::string source_hash = nhash::SHA256File(source);
         //check hash of update source
         if(source_hash=="UNSIGNED") return UNSIGNED;
@@ -159,8 +159,24 @@ namespace dir{ //finding files, filtering files, and managing original files.
         //match names of source and provided name
         if(name != source_name) return NAME_MATCH_ERROR;
 
+        //make new repository object, we dont overwrite the old one incase we wanna add a revert function later and store all previous hashes. eventually adding commits and actually
+        //nearing git architercture
+        mdata::FileRep filerep;
+        filerep.og_path = source;
+        filerep.content_hash = source_hash;
+        MakeRepositoryObject(filerep, rep_path, alt_stream);
 
+        mdata::ApplyHeaderData(source, alt_stream, "", source_hash); //only change sourcehash in original metadata for now. ill change copyid and versionid once i actually use them
 
+        FileHandle::id_hash_map[name] = source_hash;
         return SUCCESS;
     }
+
+    //TO DO:
+    //actually track all past hashes of a file if we wanna revert successfully
+    //implement updateLibrary so `ndep update` pulls from local repo into cwd ->
+    //  difference between `ndep update "lib"` and just reusing `ndep import "lib"` is that `update` updates all metadata in the uploaded library, while import treats it as fresh.
+    //  for now, that metadata doesnt really matter, but in the future it really will.
+    //  also `update` can be used like: `ndep update .` where it updates every single imported library, so it actually gives u a reason to use it instead of just spamming `import`
+    //  `ndep update .` is heavily inspired by `git add .` lol, had to copy the greats.
 }
