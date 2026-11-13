@@ -19,16 +19,20 @@ int main(int argc, char* argv[]){
 
     //get command using tkn
     CMDS command = tkn::GetCommand({argv[1]}); //fixed argv[1] to get first argument
-    cmd::handleCommands(command, variables, alt_stream, rep_name);
-    //[temp]
+    string ret = cmd::handleCommands(command, variables, alt_stream, rep_name);
+
+
+
+    //[temp debugging]
     vector<filesystem::path> signed_files = dir::GetAllSignedFiles(filesystem::current_path(), alt_stream);
     for(auto& file : signed_files){
-        cout << mdata::ReadMData(file.string(), alt_stream, "ID") << endl;
-        cout << mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") << endl;
+        cout <<"FILE() >> "<< mdata::ReadMData(file.string(), alt_stream, "ID") << ": "
+        <<mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") << endl;
     }
     for(auto& [id, hash] : FileHandle::id_hash_map){
-        cout<<id<<": "<<hash<<endl;
+        cout<<"MAIN() >> "<<id<<": "<<hash<<endl;
     }
+    cout<<ret;
     FileHandle::save_id_hash(id_hash_path);
 
 }

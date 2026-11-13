@@ -9,8 +9,8 @@
 #include<filesystem>
 
 namespace cmd{
-    void handleCommands(CMDS& cmd, const std::vector<std::string>& variables, const std::string& alt_stream, const std::string& rep_path){
-        if(cmd==CMDS::UNK) return;
+    std::string handleCommands(CMDS& cmd, const std::vector<std::string>& variables, const std::string& alt_stream, const std::string& rep_path){
+        if(cmd==CMDS::UNK) return "unknown command";
         mdata::FileRep file;
         mdata::RETURN mdata_error;
         dir::RETURN dir_error;
@@ -20,33 +20,31 @@ namespace cmd{
                 file =  mdata::SignFile(variables[0], variables[1], alt_stream, 1);
                 mdata_error = file.last_return;
                 if(mdata_error!=mdata::SIGN_SUCCESS){
-                    std::cout<<handler::HandleErrorMessage(mdata_error);
-                    break;
+                    return handler::HandleErrorMessage(mdata_error);
                 }
                 //MAKE OBJECT
                 dir_error = dir::MakeRepositoryObject(file, rep_path, alt_stream);
                 if(dir_error!=dir::SUCCESS){
-                    std::cout<<handler::HandleErrorMessage(dir_error);
-                    break;
+                    return handler::HandleErrorMessage(dir_error);
                 }
-                std::cout<<"Successfully signed file. \n";
-                break;
+                return "Successfully signed file. \n";
 
-            
             case CMDS::UNSIGN:
                 if(mdata::UnsignFile(variables[0], alt_stream)){
-                    std::cout<<"unsignedfile. \n";
+                    return "unsigned file. \n";
                 }
-                break;
+                return "error unsigning file \n";
             
             case CMDS::IMPORT:
                 dir_error = dir::ImportRepositoryObject(variables[0], std::filesystem::current_path().string(), rep_path, alt_stream);
                 if(dir_error!=dir::SUCCESS){
-                    std::cout<<handler::HandleErrorMessage(dir_error);
-                    break;
+                    return handler::HandleErrorMessage(dir_error);
                 }
-                std::cout<<"Imported file. \n";
-                break;
+                return "Imported file. \n";
+            
+            case CMDS::PUSH:
+                
         }
+        return "ERROR? \n";
     }
 }

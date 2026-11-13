@@ -20,7 +20,8 @@ namespace mdata{ //metadata handling
         FILE_ALREADY_SIGNED,
         SIGN_SUCCESS,
         INVALID_FILE,
-        INVALID_NAME
+        INVALID_NAME,
+        FAIL
     };
 
     struct FileRep{
@@ -63,8 +64,32 @@ namespace mdata{ //metadata handling
 
     }
 
+    bool ApplyHeaderData(
+        const std::filesystem::path& path,
+        const std::string& alt_stream,
+        const std::string& name = "",
+        const std::string& content_hash = "",
+        const std::string& copy_id = "",
+        const std::string& version_id = ""
+    ){
+        if(!name.empty())
+            if(!WriteMData(path.string(), alt_stream, "ID", name)) return false;
+
+        if(!content_hash.empty())
+            if(!WriteMData(path.string(), alt_stream, "CONTENT_HASH", content_hash)) return false;
+
+        if(!copy_id.empty())
+            if(!WriteMData(path.string(), alt_stream, "COPY_ID", copy_id)) return false;
+
+        if(!version_id.empty())
+            if(!WriteMData(path.string(), alt_stream, "VERSION_ID", version_id)) return false;
+
+        return true;
+    }
+
     FileRep SignFile(std::filesystem::path path, std::string name, std::string alt_stream, bool force_sign = false){
         FileRep lib;
+        lib.last_return = RETURN::FAIL;
         //check if name is taken. we do this at the top so we dont waste computing power before checking
         auto it = FileHandle::id_hash_map.find(name);
         if(it!=FileHandle::id_hash_map.end() && !force_sign){
@@ -84,35 +109,20 @@ namespace mdata{ //metadata handling
             return lib;
         }
 
-
-        //write id. used to determine identity of file disregarding filename or location
-        //ill check for stored names later cz rn 2 same names can exist
-        if(!WriteMData(path.string(), alt_stream, "ID", name)){
-            lib.last_return = RETURN::INVALID_FILE;
-            return lib;
-        }
-
-        //write copy_id. copy_id tracks the location of the current file.
-        //when `ndep sign` is used it leaves the original file's copy_id = og_file. it changes the repository's version of that file's copy_id to rep_file
-        //when `ndep import` is used, it changes copy_id to a hash of the directory where the library was imported. it also adds the hash to a database to track all distributed copies
-        WriteMData(path.string(), alt_stream, "COPY_ID", "OG_LIB");
-
-        //write version_id. version_id tracks the official version of the file assigned by ndep.
-        WriteMData(path.string(), alt_stream, "VERSION_ID", "1.0.0");
-
         //write content hash. used to compare 2 files of the same identity but imported in different projects. useful when `ndep update` is used to not cause conflict between both versions
         std::ifstream file(path, std::ios::binary);
         //most vexing parse slop
         std::vector<unsigned char> bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         std::string content_hash = nhash::SHA256File(path);
-        WriteMData(path.string(), alt_stream, "CONTENT_HASH", content_hash);
+
+        bool succ = ApplyHeaderData(path, alt_stream, name, content_hash, "OG_LIB", "1.0.0");
 
         lib.id = name;
         lib.content_hash = content_hash;
         lib.copy_id = "OG_LIB";
         lib.version_id = "1.0.0";
         lib.og_path = path;
-        lib.last_return = RETURN::SIGN_SUCCESS;
+        if(succ) lib.last_return = RETURN::SIGN_SUCCESS;
 
         std::cout<<"SIGNFILE() >> "<<name<<": "<<content_hash<<std::endl;
         FileHandle::id_hash_map[name] = content_hash;

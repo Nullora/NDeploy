@@ -19,7 +19,12 @@ namespace dir{ //finding files, filtering files, and managing original files.
         COMPRESSION_ERROR,
         SUCCESS,
         INVALID_HANDLE,
-        FAILURE
+        FAILURE,
+        //update
+        UPTODATE,
+        UNSIGNED,
+        NAME_MATCH_ERROR
+
     };
 
     std::vector<std::filesystem::path> GetAllFiles(std::filesystem::path path){
@@ -82,13 +87,13 @@ namespace dir{ //finding files, filtering files, and managing original files.
 
         //original size -> metadata of repo object for decompression of object later
         mdata::WriteMData(object_path.string(), alt_stream, "OG_SIZE", std::to_string(bytes.size()));
-        //to find original size, do this bs.
-        //size_t original_size = std::stoull(mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE"));
+        //apply name + version_id to repository object's alternate stream
+        bool succ = mdata::ApplyHeaderData(object_path.string(),alt_stream,filerep.id,"","REP_LIB",filerep.version_id);
 
         DWORD written;
         bool write = WriteFile(file, compressed_bytes.data(), static_cast<DWORD>(compressed_bytes.size()), &written, nullptr);
         CloseHandle(file);
-        if(write && written == compressed_bytes.size()) return SUCCESS;
+        if(write && written == compressed_bytes.size() && succ) return SUCCESS;
         return FAILURE;
     }
 
@@ -102,11 +107,10 @@ namespace dir{ //finding files, filtering files, and managing original files.
         std::string name = hash.substr(2);
         std::string dir = hash.substr(0,2);
         std::filesystem::path object_path = std::filesystem::path(rep_path) / "objects" / dir / name;
+
         //debug again...
         std::cout << "rep_path: " << rep_path << '\n';
         std::cout << "hash: " << hash << '\n';
-        std::cout << "dir: " << dir << '\n';
-        std::cout << "name: " << name << '\n';
         std::cout << "object_path: " << object_path.string() << '\n';
         std::cout << "exists: " << std::filesystem::exists(object_path) << '\n';
         if (!std::filesystem::exists(object_path)) return INVALID_FILE;
@@ -117,7 +121,7 @@ namespace dir{ //finding files, filtering files, and managing original files.
 
         //populate vector<>bytes with uncompressed bytes from object
         std::string size_str = mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE");
-        //  debug
+        //debug
         std::cout << "OG_SIZE: [" << size_str << "]\n";
 
         size_t original_size = std::stoull(size_str);
@@ -131,7 +135,31 @@ namespace dir{ //finding files, filtering files, and managing original files.
         DWORD written;
         bool success = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
         CloseHandle(file);
+
         if(success && written == bytes.size()) return SUCCESS;
         return FAILURE;
+    }
+
+    RETURN UpdateRepositoryObject(std::string& name, std::string& source, const std::string& rep_path, const std::string& alt_stream){
+        //get hash from id_hash_map
+        auto it = FileHandle::id_hash_map.find(name);
+        if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
+        std::string hash = it->second;
+
+        //get name of update source
+        std::string source_name = mdata::ReadMData(source, alt_stream, "ID");
+
+        //get hash of update source
+        std::string source_hash = mdata::ReadMData(source, alt_stream, "CONTENT_HASH");
+        //check hash of update source
+        if(source_hash=="UNSIGNED") return UNSIGNED;
+        if(hash==source_hash) return UPTODATE;
+
+        //match names of source and provided name
+        if(name != source_name) return NAME_MATCH_ERROR;
+
+
+
+
     }
 }
