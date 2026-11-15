@@ -21,22 +21,9 @@ int main(int argc, char* argv[]){
     CMDS command = tkn::GetCommand({argv[1]}); //fixed argv[1] to get first argument
     string ret = cmd::handleCommands(command, variables, alt_stream, rep_name);
 
+    //debug with `ndep all` to see all signed files in cwd + all signed files in local hash index
 
-
-    //[temp debugging]
-    vector<filesystem::path> signed_files = dir::GetAllSignedFiles(filesystem::current_path(), alt_stream);
-    for(auto& file : signed_files){
-        cout <<"FILES_FOUND_IN_DIR() >> "<< mdata::ReadMData(file.string(), alt_stream, "ID") << ": "
-        <<mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") << endl;
-    }
-    for(auto& [id, hash] : FileHandle::id_hash_map){
-        cout<<"DATABASE() >> "<<id<<": "<<hash<<endl;
-    }
     cout<<ret;
     FileHandle::save_id_hash(id_hash_path);
-
-
-    //hello! quick update :33
-
-    //pppp
+    //popopopopoppo
 }

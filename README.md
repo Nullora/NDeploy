@@ -39,6 +39,11 @@ ndep update {library_name}
 Updates current imported library from local repository objects. (later ill track all updates to a specific imported library for statistics)
 (**WARNING:** No smart-merging yet, if theres any file-specific changes made, `ndep update` will completely overwrite them. use with caution and keep your file-specific changes in a separate file for now)
 
+```bash
+ndep all
+```
+Shows every signed file in CWD along with every signed file in local hash index. (I made it for debugging so it doesnt constantly print the signed files cluttering my terminal)
+
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
 

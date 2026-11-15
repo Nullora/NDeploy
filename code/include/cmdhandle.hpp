@@ -14,6 +14,9 @@ namespace cmd{
         mdata::FileRep file;
         mdata::RETURN mdata_error;
         dir::RETURN dir_error;
+
+        std::vector<std::filesystem::path> signed_files;
+        std::string ret="";
         switch(cmd){
             case CMDS::SIGN:
                 //SIGN FILE
@@ -56,7 +59,17 @@ namespace cmd{
                     return handler::HandleErrorMessage(dir_error);
                 }
                 return "Updated library successfully. \n";
+            
+            case CMDS::ALL:
+                signed_files = dir::GetAllSignedFiles(std::filesystem::current_path(), alt_stream);
+                for(auto& file : signed_files){
+                    ret += "Signed Files in CWD >> " + mdata::ReadMData(file.string(), alt_stream, "ID") + ": " + mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") + '\n';
+                }
+                for(auto& [id, hash] : FileHandle::id_hash_map){
+                    ret += "Local Hash Index >> " + id + ": " + hash + '\n';
+                }
+                return ret;
         }
-        return "ERROR? \n";
+        return "ERROR?:745 \n";
     }
 }

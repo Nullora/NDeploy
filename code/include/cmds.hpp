@@ -7,5 +7,6 @@ enum class CMDS {
     UPDATE,
     PUSH,
     RENAME,
+    ALL,
     UNK
 };

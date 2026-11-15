@@ -21,6 +21,7 @@ public:
         m["update"] = CMDS::UPDATE;
         m["push"] = CMDS::PUSH;
         m["rename"] = CMDS::RENAME;
+        m["all"] = CMDS::ALL;
         return m;
     }();
 
