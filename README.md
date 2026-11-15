@@ -22,18 +22,22 @@ ndep unsign {file_name}
 Unsigns a file by deleting the ndep metadata streams from it. The repository object stays where it is, only the index of the object gets deleted.
 
 ```bash
-ndep import {library_name}
+ndep import {library_name} {filename}
 ```
-Looks up a library in the local index, decompresses its repository copy, and writes it into the current working directory as `temp.hpp`.
+Looks up a library `{library_name}` in the local index, decompresses its repository copy, and writes it into the current working directory as `{filename}`.
+(Later ill track every single imported file so it can know where its copies live, and if we `ndep unsign` a library, all its copies are unsigned, and only their contents will remain)
+(**WARNING:** Make sure `{filename}` isnt already used, as ndep will simply overwrite the current existing file.)
 
 ```bash
 ndep push {library_name} {source_of_push}
 ```
-Pushes an update to local repository objects, and update current version index. Past objects aren't overwritten, they are just deleted from the index (for now, later i will keep track of them to add a revert function)
+Pushes an update to local repository objects, and update current version index. Past objects aren't overwritten, they are just deleted from the index (later i will keep track of them to add a revert function)
 
-```text
-More commands in developement, check in soon !
+```bash
+ndep update {library_name}
 ```
+Updates current imported library from local repository objects. (later ill track all updates to a specific imported library for statistics)
+(**WARNING:** No smart-merging yet, if theres any file-specific changes made, `ndep update` will completely overwrite them. use with caution and keep your file-specific changes in a separate file for now)
 
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
