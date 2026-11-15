@@ -135,17 +135,16 @@ namespace mdata{ //metadata handling
         std::vector<std::string> stream_sectors = {"ID", "CONTENT_HASH", "COPY_ID", "VERSION_ID"};
         //check existence
         std::string name = ReadMData(path, alt_stream, "ID");
-        auto it = FileHandle::id_hash_map.find(name);
-        if(name=="UNSIGNED" || it==FileHandle::id_hash_map.end())return false;
+        if(name=="UNSIGNED")return false;
 
         std::string stream;
-        bool state = false;
-        for(auto& sector : stream_sectors){
-            stream = path + ":" + alt_stream + "_" +sector;
-            state = DeleteFileA(stream.c_str()); //ik this only applies to the last sector deleted, but signing a file means all the sectors were written
-            //so proving 1 sector was deleted is realistically enough. if i need to uncover tampering in the future i can improve this.
+        bool state = true;
+        for (auto& sector : stream_sectors) {
+            stream = path + ":" + alt_stream + "_" + sector;
+            if (!DeleteFileA(stream.c_str())) state = false;
         }
-        FileHandle::id_hash_map.erase(name);
+
+        if(state) FileHandle::id_hash_map.erase(name);
         return state;
     }
 }

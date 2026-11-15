@@ -36,7 +36,7 @@ namespace cmd{
                 return "error unsigning file \n";
             
             case CMDS::IMPORT:
-                dir_error = dir::ImportRepositoryObject(variables[0], std::filesystem::current_path().string(), rep_path, alt_stream);
+                dir_error = dir::ImportRepositoryObject(variables[0], std::filesystem::current_path().string(), variables[1], rep_path, alt_stream);
                 if(dir_error!=dir::SUCCESS){
                     return handler::HandleErrorMessage(dir_error);
                 }
@@ -49,6 +49,13 @@ namespace cmd{
                     return handler::HandleErrorMessage(dir_error);
                 }
                 return "Pushed update to repo object. \n";
+            
+            case CMDS::UPDATE:
+                dir_error = dir::UpdateImportedFile(variables[0], alt_stream, rep_path);
+                if(dir_error!=dir::SUCCESS){
+                    return handler::HandleErrorMessage(dir_error);
+                }
+                return "Updated library successfully. \n";
         }
         return "ERROR? \n";
     }

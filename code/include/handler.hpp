@@ -24,7 +24,7 @@ namespace handler {
                 if (it != statics::dir_error_map.end())
                     return it->second;
 
-                return "unknown directory error.\n";
+                return "unknown error.\n";
             }
         }, error);
     }

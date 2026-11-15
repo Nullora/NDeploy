@@ -34,6 +34,9 @@ public:
         m[dir::INVALID_HANDLE] = "Invalid file handle from `CreateFileA` \n";
         m[dir::INVALID_FILE] = "Invalid repository object. \n";
         m[dir::INVALID_NAME] = "Library name doesnt exist.\n";
+        m[dir::UPTODATE] = "Library is already up to date. \n";
+        m[dir::UNSIGNED] = "File is unsigned. \n";
+        m[dir::NAME_MATCH_ERROR] = "Library name doesnt match source file name. \n";
         return m;
     }();
 
@@ -43,6 +46,7 @@ public:
         m[mdata::INVALID_FILE] = "Invalid file. \n";
         m[mdata::SIGN_SUCCESS] = "Successfully signed file. \n";
         m[mdata::FILE_ALREADY_SIGNED] = "File already has a signature. Use force_sign if you wanna overwrite it. \n";
+        m[mdata::FAIL] = "Failed to update file metadata. \n";
         return m;
     }();
 };

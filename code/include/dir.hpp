@@ -54,7 +54,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         return signed_files;
     }
 
-
+    //################ ndep sign {vars}
     RETURN MakeRepositoryObject(const mdata::FileRep& filerep, const std::string rep_path, const std::string alt_stream){
         std::ifstream file0(filerep.og_path, std::ios::binary);
         //c++ interepts it as a function so we use double parentheses to clarify declaration. we could use brace initialization but ->
@@ -65,7 +65,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::string content_hash = nhash::SHA256File(filerep.og_path);
 
         //debug code, will go away (i think)
-        std::cout << "hash: [" << content_hash << "]\n";
+        std::cout << "recalculated hash: [" << content_hash << "]\n";
         std::cout << "stored hash: [" << filerep.content_hash << "]\n";
         std::cout << "hash length: " << content_hash.size() << '\n';
 
@@ -97,7 +97,11 @@ namespace dir{ //finding files, filtering files, and managing original files and
         return FAILURE;
     }
 
-    RETURN ImportRepositoryObject(const std::string& id, std::string target, const std::string& rep_path, const std::string& alt_stream){
+
+    // ######## ndep import {lib} {filename}
+    //imports the library {lib} with assigned filename {filename}. the filename doesnt change anything but the name itself, ndep will still work fine, just make sure its an original file ->
+    //so ndep doesnt overwrite a file, as it will do so with no warning.
+    RETURN ImportRepositoryObject(const std::string& id, std::string target, std::string filename,const std::string& rep_path, const std::string& alt_stream){
         //get hash from id_hash_map
         auto it = FileHandle::id_hash_map.find(id);
         if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
@@ -110,8 +114,8 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         //debug again...
         std::cout << "rep_path: " << rep_path << '\n';
-        std::cout << "hash: " << hash << '\n';
-        std::cout << "object_path: " << object_path.string() << '\n';
+        std::cout << "import path: "<< target << "\\" << filename << '\n';
+        std::cout << "object hash: " << hash << '\n';
         std::cout << "exists: " << std::filesystem::exists(object_path) << '\n';
         if (!std::filesystem::exists(object_path)) return INVALID_FILE;
 
@@ -128,18 +132,21 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::vector<unsigned char> bytes;
         if(!compression::Uncompress(compressed_bytes, bytes, original_size)) return COMPRESSION_ERROR;
 
-        //target (we dont preserve name or extention yet, were using this for now lol)
-        target += "/temp.hpp";
+        target += "/" + filename;
         HANDLE file = CreateFileA(target.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
         if(file==INVALID_HANDLE_VALUE) return INVALID_HANDLE;
         DWORD written;
         bool success = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
         CloseHandle(file);
 
+        //write sign metadata
+        mdata::ApplyHeaderData(target, alt_stream, id, hash, "none:", "none:");
+
         if(success && written == bytes.size()) return SUCCESS;
         return FAILURE;
     }
 
+    // ######## ndep push {VARS}
     RETURN UpdateRepositoryObject(const std::string& name, const std::string& source, const std::string& rep_path, const std::string& alt_stream){
         //get current hash from id_hash_map (saves the hash of repository objects, not original files.)
         auto it = FileHandle::id_hash_map.find(name);
@@ -168,15 +175,73 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         mdata::ApplyHeaderData(source, alt_stream, "", source_hash); //only change sourcehash in original metadata for now. ill change copyid and versionid once i actually use them
 
-        FileHandle::id_hash_map[name] = source_hash;
+        FileHandle::id_hash_map[name] = source_hash; //update hash map to refer to new version
         return SUCCESS;
     }
 
-    //TO DO:
-    //actually track all past hashes of a file if we wanna revert successfully, we already save them as an object in repo but we need to track them in a map
-    //implement updateLibrary so `ndep update` pulls from local repo into cwd ->
-    //  difference between `ndep update "lib"` and just reusing `ndep import "lib"` is that `update` updates all metadata in the uploaded library, while import treats it as fresh.
-    //  for now, that metadata doesnt really matter, but in the future it really will.
-    //  also `update` can be used like: `ndep update .` where it updates every single imported library, so it actually gives u a reason to use it instead of just spamming `import`
-    //  `ndep update .` is heavily inspired by `git add .` lol
+    //ndep update {lib} {-flags: -v:(version_number)}
+    //not fully functional yet, i forgot to sign the imported file that were checking so it always shows up as UNSIGNED
+    RETURN UpdateImportedFile(std::string name, const std::string& alt_stream, const std::string& rep_path){
+        std::filesystem::path cwd = std::filesystem::current_path();
+        std::string cwd_str = cwd.string();
+        //  find given id and latest hash
+        auto it = FileHandle::id_hash_map.find(name);
+        if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
+        std::string stored_hash = it->second;
+
+        //find all signed files in cwd and segment them based on id
+        std::vector<std::filesystem::path> cwd_libs = GetAllSignedFiles(cwd, alt_stream);
+        std::string calculated_hash = "UNSIGNED";
+        std::string lib_path = "";
+        //  find first lib with given name and use it. everything else doesnt matter.
+        for(auto& lib : cwd_libs){
+            if(mdata::ReadMData(lib.string(), alt_stream, "ID")==name){
+                std::cout<<"Found: "<<lib.string()<<std::endl;
+                calculated_hash = nhash::SHA256File(lib); //recalulate hash rather than using one given cz file mightve been changed and we wanna verify the changes.
+                lib_path = lib.string();
+                break;
+            }
+        }
+
+        //see whether the 2 files are the same.
+        if(stored_hash==calculated_hash) return UPTODATE;
+
+        //update the file
+        //  get object path from og hash. i might have to track this or smth cz finding it like this everytime is pissing me off
+        std::string objname = stored_hash.substr(2);
+        std::string dir = stored_hash.substr(0,2);
+        std::filesystem::path object_path = std::filesystem::path(rep_path) / "objects" / dir / objname;
+        
+        //  get raw compressed object bytes.
+        std::ifstream file0(object_path, std::ios::binary);
+        std::vector<unsigned char> compressed_bytes((std::istreambuf_iterator<char>(file0)), std::istreambuf_iterator<char>());
+
+        //  get original size from metadata of object. used to uncompress
+        std::string size_str = mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE");
+
+        //debug, i like the look of massive blocks of text in my terminal
+        std::cout << "rep_path: " << rep_path << '\n';
+        std::cout << "stored hash: " << stored_hash << '\n';
+        std::cout << "recalculated hash: " << calculated_hash << '\n';
+        std::cout << "object_path: " << object_path.string() << '\n';
+        std::cout << "exists: " << std::filesystem::exists(object_path) << '\n';
+        std::cout << "OG_SIZE: [" << size_str << "]\n";
+        size_t original_size = std::stoull(size_str);
+
+        //uncompress and get raw bytes
+        std::vector<unsigned char> bytes;
+        if(!compression::Uncompress(compressed_bytes, bytes, original_size)) return COMPRESSION_ERROR;
+
+        //use filepath of given file, again, for now imported files arent signed properly so ill fix that next update, probs tmrw 
+        HANDLE file = CreateFileA(lib_path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if(file==INVALID_HANDLE_VALUE) return INVALID_HANDLE;
+        DWORD written;
+        bool success = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
+        CloseHandle(file);
+
+        mdata::ApplyHeaderData(lib_path, alt_stream, name, calculated_hash, "none:", "none:");
+
+        if(success && written==bytes.size()) return SUCCESS;
+        return FAILURE;
+    }
 }
