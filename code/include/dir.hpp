@@ -9,7 +9,7 @@
 
 
 
-namespace dir{ //finding files, filtering files, and managing original files.
+namespace dir{ //finding files, filtering files, and managing original files and repo objects
 
     enum RETURN{
         INVALID_FILE,
@@ -173,10 +173,10 @@ namespace dir{ //finding files, filtering files, and managing original files.
     }
 
     //TO DO:
-    //actually track all past hashes of a file if we wanna revert successfully
+    //actually track all past hashes of a file if we wanna revert successfully, we already save them as an object in repo but we need to track them in a map
     //implement updateLibrary so `ndep update` pulls from local repo into cwd ->
     //  difference between `ndep update "lib"` and just reusing `ndep import "lib"` is that `update` updates all metadata in the uploaded library, while import treats it as fresh.
     //  for now, that metadata doesnt really matter, but in the future it really will.
     //  also `update` can be used like: `ndep update .` where it updates every single imported library, so it actually gives u a reason to use it instead of just spamming `import`
-    //  `ndep update .` is heavily inspired by `git add .` lol, had to copy the greats.
+    //  `ndep update .` is heavily inspired by `git add .` lol
 }

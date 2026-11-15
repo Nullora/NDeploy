@@ -42,6 +42,7 @@ namespace cmd{
                 }
                 return "Imported file. \n";
             
+            //slop slop slop slop push
             case CMDS::PUSH:
                 dir_error = dir::UpdateRepositoryObject(variables[0], variables[1], rep_path, alt_stream);
                 if(dir_error!=dir::SUCCESS){

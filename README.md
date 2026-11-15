@@ -19,12 +19,21 @@ Signs a file using NTFS Alternate Data Streams (a fancy way of attaching data to
 ```bash
 ndep unsign {file_name}
 ```
-Unsigns a file by deleting the ndep metadata streams from it. The repository copy stays where it is.
+Unsigns a file by deleting the ndep metadata streams from it. The repository object stays where it is, only the index of the object gets deleted.
 
 ```bash
 ndep import {library_name}
 ```
 Looks up a library in the local index, decompresses its repository copy, and writes it into the current working directory as `temp.hpp`.
+
+```bash
+ndep push {library_name} {source_of_push}
+```
+Pushes an update to local repository objects, and update current version index. Past objects aren't overwritten, they are just deleted from the index (for now, later i will keep track of them to add a revert function)
+
+```text
+More commands in developement, check in soon !
+```
 
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3

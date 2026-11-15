@@ -49,7 +49,7 @@ namespace mdata{ //metadata handling
         return success && written == data.size();
     }
 
-    std::string ReadMData(const std::string& filename, const std::string& alt_stream, const std::string& stream_sector){
+    std::string ReadMData(const std::string& filename, const std::string& alt_stream, const std::string& stream_sector){ //ID, CONTENT_HASH, COPY_ID, VERSION_ID
         std::string stream = filename + ":" + alt_stream + "_" + stream_sector;
 
         HANDLE file = CreateFileA(stream.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -63,7 +63,8 @@ namespace mdata{ //metadata handling
         return std::string(buffer,bytes_read);
 
     }
-
+    
+    //ai function, im not gonna write this slop it already uses functions i wrote so technically i wrote it
     bool ApplyHeaderData(
         const std::filesystem::path& path,
         const std::string& alt_stream,
