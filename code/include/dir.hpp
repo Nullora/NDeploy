@@ -3,7 +3,6 @@
 #include<iostream>
 #include<filesystem>
 #include<array>
-//cz in GetWindowsFileId -> GetFileInformationByHandleEx(file, FileIdInfo, &info, sizeof(info)) -> FileIdInfo somewhy wasnt working so i had to define it
 #include<Windows.h>
 #ifndef FileIdInfo
 #define FileIdInfo ((FILE_INFO_BY_HANDLE_CLASS)18)

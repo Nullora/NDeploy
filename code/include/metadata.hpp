@@ -58,6 +58,8 @@ namespace mdata{ //metadata handling
         HANDLE file = OpenFileById(volume, &descriptor, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, FILE_FLAG_BACKUP_SEMANTICS);
         char path[MAX_PATH];
         DWORD length = GetFinalPathNameByHandleA(file, path, MAX_PATH, FILE_NAME_NORMALIZED);
+        CloseHandle(volume);
+        CloseHandle(file);
         if (length > 0 && length < MAX_PATH) return path;
         return ":NON_EXISTANT:";
     }
