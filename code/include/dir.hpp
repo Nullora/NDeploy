@@ -11,6 +11,7 @@
 
 namespace dir{ //finding files, filtering files, and managing original files and repo objects
 
+//                          ########### UTILITY FUNCTIONS, BARELY USED OUTSIDE OF THIS FILE (EMPHASIS ON BARELY LOL)
     enum RETURN{
         INVALID_FILE,
         INVALID_NAME,
@@ -54,6 +55,25 @@ namespace dir{ //finding files, filtering files, and managing original files and
         return signed_files;
     }
 
+    RETURN calcCWDHash(const std::string& alt_stream){
+        std::vector<std::filesystem::path> signed_files = GetAllSignedFiles(std::filesystem::current_path(), alt_stream);
+        std::vector<std::filesystem::path> failed_files;
+        std::string calculated_hash;
+        for(auto& file : signed_files){
+            calculated_hash = "UNSIGNED";
+            if(mdata::ReadMData(file.string(),alt_stream,"CONTENT_HASH")!="UNSIGNED"){
+                if(!mdata::WriteMData(file.string(), alt_stream, "CONTENT_HASH", nhash::SHA256File(file.string()))){
+                    failed_files.push_back(file);
+                }
+            }
+        }
+        for(auto& file : failed_files){
+            std::cout<<file.string()<<'\n';
+        }
+        return SUCCESS;
+    }
+
+    //                                          ############ NAMESPACE OFFICIAL FUNCTIONS, OUTSIDE FILES RELY ON THESE WORKING
     //################ ndep sign {vars}
     RETURN MakeRepositoryObject(const mdata::FileRep& filerep, const std::string rep_path, const std::string alt_stream){
         std::ifstream file0(filerep.og_path, std::ios::binary);
@@ -183,7 +203,6 @@ namespace dir{ //finding files, filtering files, and managing original files and
     //not fully functional yet, i forgot to sign the imported file that were checking so it always shows up as UNSIGNED
     RETURN UpdateImportedFile(std::string name, const std::string& alt_stream, const std::string& rep_path){
         std::filesystem::path cwd = std::filesystem::current_path();
-        std::string cwd_str = cwd.string();
         //  find given id and latest hash
         auto it = FileHandle::id_hash_map.find(name);
         if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
@@ -239,8 +258,11 @@ namespace dir{ //finding files, filtering files, and managing original files and
         bool success = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
         CloseHandle(file);
 
-        mdata::ApplyHeaderData(lib_path, alt_stream, name, calculated_hash, "none:", "none:");
+        mdata::ApplyHeaderData(lib_path, alt_stream, name, "a", "none:", "none:"); //we were using `calculated_hash` which was the content hash before the update, now its just `a`->
+        //so its not null and mdata::ReadMData doesnt return `UNSIGNED` which will fuck over calcCWDHash cz it relies on it being signed already
 
+        calcCWDHash(alt_stream); //actual recalculated hash after the update, also recalculates everything in that directory to keep everything uptodate
+        
         if(success && written==bytes.size()) return SUCCESS;
         return FAILURE;
     }

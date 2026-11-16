@@ -55,7 +55,7 @@ namespace mdata{ //metadata handling
         HANDLE file = CreateFileA(stream.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if(file==INVALID_HANDLE_VALUE) 	return "UNSIGNED"; //ALTERNATE STREAM DOESNT EXIST
 
-        char buffer[100] = {}; //for now can only up to 50 chars, if any more than that were fucked. ill fix later
+        char buffer[100] = {};//idk if a fixed 100 char buffer is actually reliable but wtvr
         DWORD bytes_read;
         bool success = ReadFile(file, buffer, sizeof(buffer), &bytes_read, nullptr);
         CloseHandle(file);

@@ -69,6 +69,13 @@ namespace cmd{
                     ret += "Local Hash Index >> " + id + ": " + hash + '\n';
                 }
                 return ret;
+            
+            case CMDS::RCALC:
+                dir_error = dir::calcCWDHash(alt_stream);
+                if(dir_error!=dir::SUCCESS){
+                    return handler::HandleErrorMessage(dir_error);
+                }
+                return "Manually recalculated all hashes in current working directory. `ndep all` to see updated hashes. \n";
         }
         return "ERROR?:745 \n";
     }

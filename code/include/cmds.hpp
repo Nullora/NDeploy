@@ -8,5 +8,6 @@ enum class CMDS {
     PUSH,
     RENAME,
     ALL,
+    RCALC,
     UNK
 };
