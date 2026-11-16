@@ -200,7 +200,6 @@ namespace dir{ //finding files, filtering files, and managing original files and
     }
 
     //ndep update {lib} {-flags: -v:(version_number)}
-    //not fully functional yet, i forgot to sign the imported file that were checking so it always shows up as UNSIGNED
     RETURN UpdateImportedFile(std::string name, const std::string& alt_stream, const std::string& rep_path){
         std::filesystem::path cwd = std::filesystem::current_path();
         //  find given id and latest hash
@@ -238,7 +237,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         //  get original size from metadata of object. used to uncompress
         std::string size_str = mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE");
 
-        //debug, i like the look of massive blocks of text in my terminal
+        //debug, i like the look of massive blocks of text in my terminal so i can act cool on instagram stories :3
         std::cout << "rep_path: " << rep_path << '\n';
         std::cout << "stored hash: " << stored_hash << '\n';
         std::cout << "recalculated hash: " << calculated_hash << '\n';
