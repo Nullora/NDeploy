@@ -8,14 +8,20 @@
 using namespace std;
 
 const string alt_stream = "NDEP";
-const string rep_name = "C:\\Users\\mehdi\\Projects\\ndep\\.ndep"; //permanent repository
+
+const string rep_name = "C:\\.ndep"; //permanent repository, will change to a dynamic repo so you can switch repos and segment library genres into their own repo
 const string id_hash_path = rep_name + "\\data\\ihp";
 
 int main(int argc, char* argv[]){
     if(argc < 2) return 0;
     FileHandle::load_id_hash(id_hash_path);
-    //fill vector with arguments
+    //fill vector with all variables
     vector<string> variables(argv + 2, argv + argc);
+    //i will add another vector for flags cz some commands will need flags in the future:
+    //> `ndep push {libname} -last` uses the last source of push instead of rewriting `ndep push {libname} {source_of_push}` everytime
+    //> `ndep update {libname} -v:1.2.0` updates the library to a specific version instead of last version
+    //> `ndep sign {filename} {libname} -fs` force sign, overwrites already signed files with new data.
+    //> WARNING: keep in mind these arent implemented yet, only ideas for the future, will probably come around next week.
 
     //get command using tkn
     CMDS command = tkn::GetCommand({argv[1]}); //fixed argv[1] to get first argument

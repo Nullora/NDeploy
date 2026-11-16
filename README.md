@@ -31,7 +31,7 @@ Looks up a library `{library_name}` in the local index, decompresses its reposit
 ```bash
 ndep push {library_name} {source_of_push}
 ```
-Pushes an update to local repository objects, and update current version index. Past objects aren't overwritten, they are just deleted from the index (later i will keep track of them to add a revert function)
+Pushes an update to local repository objects, and update current version index. Past objects aren't overwritten or deleted from the repo, they are just deleted from the index (later i will keep track of them to add a revert function)
 
 ```bash
 ndep update {library_name}
@@ -42,7 +42,12 @@ Updates current imported library from local repository objects. (later ill track
 ```bash
 ndep all
 ```
-Shows every signed file in CWD along with every signed file in local hash index. (I made it for debugging so it doesnt constantly print the signed files cluttering my terminal)
+Shows every signed file in CWD along with every signed file in local hash index. (Mainly a debugger, you could use it to check library spelling if u forgot and remember every imported library in cwd)
+
+```bash
+ndep rcalc
+```
+Manually recalculate content hash for every signed file in working directory. (Mainly a debugger, useful for checking if a commands isnt updating metadata correctly)
 
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
