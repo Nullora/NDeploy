@@ -1,13 +1,13 @@
 #pragma once
 
 enum class CMDS {
-    SIGN,
-    UNSIGN,
-    IMPORT,
-    UPDATE,
-    PUSH,
-    RENAME,
-    ALL,
-    RCALC,
+    SIGN, //w
+    UNSIGN, //w
+    IMPORT, //w
+    UPDATE, //w
+    PUSH, //w
+    RENAME, //n
+    ALL, //w
+    RCALC, //w
     UNK
 };

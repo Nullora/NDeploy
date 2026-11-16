@@ -1,11 +1,18 @@
 #pragma once
 #include<vector>
+#include<iostream>
 #include<filesystem>
+#include<array>
+//cz in GetWindowsFileId -> GetFileInformationByHandleEx(file, FileIdInfo, &info, sizeof(info)) -> FileIdInfo somewhy wasnt working so i had to define it
+#include<Windows.h>
+#ifndef FileIdInfo
+#define FileIdInfo ((FILE_INFO_BY_HANDLE_CLASS)18)
+#endif
+//custom libs
 #include<metadata.hpp>
 #include<hash.hpp>
-#include"compression.hpp"
+#include<compression.hpp>
 #include<statics.hpp>
-#include<iostream>
 
 
 
@@ -27,6 +34,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         NAME_MATCH_ERROR
 
     };
+
 
     std::vector<std::filesystem::path> GetAllFiles(std::filesystem::path path){
         std::vector<std::filesystem::path> all_files;
@@ -72,6 +80,9 @@ namespace dir{ //finding files, filtering files, and managing original files and
         }
         return SUCCESS;
     }
+
+
+
 
     //                                          ############ NAMESPACE OFFICIAL FUNCTIONS, OUTSIDE FILES RELY ON THESE WORKING
     //################ ndep sign {vars}
@@ -265,4 +276,6 @@ namespace dir{ //finding files, filtering files, and managing original files and
         if(success && written==bytes.size()) return SUCCESS;
         return FAILURE;
     }
+
+    //`ndep rename {oldname} {newname}` renames every tracked copy of {oldname}
 }

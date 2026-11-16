@@ -21,6 +21,7 @@ namespace mdata{ //metadata handling
         SIGN_SUCCESS,
         INVALID_FILE,
         INVALID_NAME,
+        FILE_ID_ERROR,
         FAIL
     };
 
@@ -32,6 +33,34 @@ namespace mdata{ //metadata handling
         std::string version_id;
         std::filesystem::path og_path;
     };
+
+    FileInformation GetWindowsFileId(HANDLE file){
+        FILE_ID_INFO info{};
+        FileInformation fileinfo{};
+
+        if(!GetFileInformationByHandleEx(file, FileIdInfo, &info, sizeof(info))){
+            std::cerr << "failed to retrieve id: " << GetLastError();
+            fileinfo.lasterror = false;
+            return fileinfo;
+        }
+        fileinfo.VolumeSN = info.VolumeSerialNumber;
+        fileinfo.FileId = info.FileId;
+        fileinfo.lasterror = true;
+        return fileinfo;
+    }
+
+    std::string GetPathFromId(FileInformation info){
+        HANDLE volume = CreateFileA("\\\\.\\C:", 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr); //C: only for now, fuck any other drive, i cant deal with this
+        ::FILE_ID_DESCRIPTOR descriptor{};
+        descriptor.dwSize = sizeof(descriptor);
+        descriptor.Type = ExtendedFileIdType;
+        memcpy(descriptor.ExtendedFileId.Identifier, info.FileId.Identifier, 16);
+        HANDLE file = OpenFileById(volume, &descriptor, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, FILE_FLAG_BACKUP_SEMANTICS);
+        char path[MAX_PATH];
+        DWORD length = GetFinalPathNameByHandleA(file, path, MAX_PATH, FILE_NAME_NORMALIZED);
+        if (length > 0 && length < MAX_PATH) return path;
+        return ":NON_EXISTANT:";
+    }
 
     inline bool exists(const std::string& name) {
         struct stat buffer;   
@@ -117,6 +146,16 @@ namespace mdata{ //metadata handling
         std::string content_hash = nhash::SHA256File(path);
 
         bool succ = ApplyHeaderData(path, alt_stream, name, content_hash, "OG_LIB", "1.0.0");
+        HANDLE bol = CreateFileA(path.string().c_str(), FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr); 
+        if(bol==INVALID_HANDLE_VALUE){
+            lib.last_return = INVALID_FILE;
+            return lib;
+        }
+
+        FileInformation info = GetWindowsFileId(bol);
+        CloseHandle(bol);
+        std::cout<<"Given File Path: "<<path.string()<<'\n';
+        std::cout<<"Recalculated File Path: "<<GetPathFromId(info)<<'\n';
 
         lib.id = name;
         lib.content_hash = content_hash;
@@ -125,8 +164,8 @@ namespace mdata{ //metadata handling
         lib.og_path = path;
         if(succ) lib.last_return = RETURN::SIGN_SUCCESS;
 
-        std::cout<<"SIGNFILE() >> "<<name<<": "<<content_hash<<std::endl;
         FileHandle::id_hash_map[name] = content_hash;
+        FileHandle::id_fileid_map[name].push_back(info);
 
         return lib;
     }
