@@ -81,4 +81,4 @@ I also ended up learning a shitton of new stuff and new win32 functions, so that
 I use AI in this project, heres where exactly:
 - code/include/hash.hpp
 - code/include/compression.hpp
-I did it cz honestly i dont wanna dive in sha256 and cryptography, and cz i dont wanna read zlib and their old hag docs, so ai did the bs for me and i focused on the hard parts (i think)
+- I did it cz honestly i dont wanna dive in sha256 and cryptography, and cz i dont wanna read zlib and their old hag docs, so ai did the bs for me and i focused on the hard parts (i think)

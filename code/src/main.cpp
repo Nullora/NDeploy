@@ -9,7 +9,7 @@ using namespace std;
 
 const string alt_stream = "NDEP";
 
-const string rep_name = "C:\\.ndep"; //permanent repository, will change to a dynamic repo so you can switch repos and segment library genres into their own repo
+const string rep_name = "C:\\NFramework\\.ndep"; //permanent repository, will change to a dynamic repo so you can switch repos and segment library genres into their own repo.
 const string id_hash_path = rep_name + "\\data\\ihp";
 const string id_fileid_path = rep_name + "\\data\\ifp";
 
