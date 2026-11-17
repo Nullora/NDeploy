@@ -155,22 +155,27 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         //populate vector<>bytes with uncompressed bytes from object
         std::string size_str = mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE");
-        //debug
         std::cout << "OG_SIZE: [" << size_str << "]\n";
 
         size_t original_size = std::stoull(size_str);
         std::vector<unsigned char> bytes;
         if(!compression::Uncompress(compressed_bytes, bytes, original_size)) return COMPRESSION_ERROR;
 
+        //write bytes to target file
         target += "/" + filename;
         HANDLE file = CreateFileA(target.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
         if(file==INVALID_HANDLE_VALUE) return INVALID_HANDLE;
         DWORD written;
         bool success = WriteFile(file, bytes.data(), static_cast<DWORD>(bytes.size()), &written, nullptr);
+        FileInformation info{};
+        info = mdata::GetWindowsFileId(file);
         CloseHandle(file);
 
         //write sign metadata
         mdata::ApplyHeaderData(target, alt_stream, id, hash, "none:", "none:");
+        //add to id_fileid map
+        FileHandle::id_fileid_map[id].push_back(info);
+        std::cout << "recalculated file path (id_fileid_map): "<<mdata::GetPathFromId(info)<<'\n';
 
         if(success && written == bytes.size()) return SUCCESS;
         return FAILURE;
@@ -277,4 +282,25 @@ namespace dir{ //finding files, filtering files, and managing original files and
     }
 
     //`ndep rename {oldname} {newname}` renames every tracked copy of {oldname}
+    RETURN renameLibrary(const std::string& name, const std::string& alt_stream){
+        //check whether name exists in both data indexes.
+        auto it =  FileHandle::id_hash_map.find(name);
+        if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
+
+        auto it2 =  FileHandle::id_fileid_map.find(name);
+        if(it2==FileHandle::id_fileid_map.end()) return INVALID_NAME;
+
+        FileInformation info{};
+        std::string path;
+        //loop through each entry of fileinformation.
+        for(const auto& info : it2->second){
+            path = mdata::GetPathFromId(info);
+            std::cout<<path<<'\n'; //for now just prints, then will actually navigate to the file and change the metadata
+            //each printed path is structured as such: `\\?\C:\path\to\file`. after some research ->
+            //turns out normally, windows applies path processing rules like normalizing path components, and traditional `MAX_PATH` limit. ->
+            //starting the file with `\\?\` tells windows apis to bypass the restrictions. idk what normalizing path components means but all ik im bypassing that shit like a chad
+        }
+        return SUCCESS;
+        
+    }
 }

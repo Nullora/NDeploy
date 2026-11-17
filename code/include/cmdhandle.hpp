@@ -76,6 +76,13 @@ namespace cmd{
                     return handler::HandleErrorMessage(dir_error);
                 }
                 return "Manually recalculated all hashes in current working directory. `ndep all` to see updated hashes. \n";
+            
+            case CMDS::RENAME:
+                dir_error = dir::renameLibrary(variables[0], alt_stream);
+                if(dir_error!=dir::SUCCESS){
+                    return handler::HandleErrorMessage(dir_error);
+                }
+                return "Found. \n";
         }
         return "ERROR?:745 \n";
     }
