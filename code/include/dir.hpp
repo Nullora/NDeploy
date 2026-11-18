@@ -290,7 +290,6 @@ namespace dir{ //finding files, filtering files, and managing original files and
         auto it2 =  FileHandle::id_fileid_map.find(name);
         if(it2==FileHandle::id_fileid_map.end()) return INVALID_NAME;
 
-        FileInformation info{};
         std::string path;
         //loop through each entry of fileinformation.
         for(const auto& info : it2->second){

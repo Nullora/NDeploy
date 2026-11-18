@@ -64,6 +64,21 @@ namespace mdata{ //metadata handling
         return ":NON_EXISTANT:";
     }
 
+    bool RefreshID_FILEID_map(){
+        std::string path;
+        for(auto& [name, fileinfo_vec] : FileHandle::id_fileid_map){
+            for(auto it = fileinfo_vec.begin(); it!=fileinfo_vec.end();){
+                path = GetPathFromId(*it);
+                if(path==":NON_EXISTANT:"){
+                    fileinfo_vec.erase(it);
+                }else{
+                    ++it;
+                }
+            }
+        }
+        return true;
+    }
+
     inline bool exists(const std::string& name) {
         struct stat buffer;   
         return (stat (name.c_str(), &buffer) == 0); 

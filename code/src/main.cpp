@@ -17,6 +17,9 @@ int main(int argc, char* argv[]){
     if(argc < 2) return 0;
     FileHandle::load_id_hash(id_hash_path);
     FileHandle::load_id_fileid(id_fileid_path);
+    //refresh id_fileid
+    mdata::RefreshID_FILEID_map();
+
     vector<string> variables(argv + 2, argv + argc);
 
 
