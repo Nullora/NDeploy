@@ -23,6 +23,7 @@ public:
         m["rename"] = CMDS::RENAME;
         m["all"] = CMDS::ALL;
         m["rcalc"] = CMDS::RCALC;
+        m["find"] = CMDS::FIND;
         return m;
     }();
 

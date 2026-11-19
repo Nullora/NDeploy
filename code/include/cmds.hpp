@@ -6,8 +6,10 @@ enum class CMDS {
     IMPORT, //w
     UPDATE, //w
     PUSH, //w
-    RENAME, //n
+    RENAME, //w
     ALL, //w
     RCALC, //w
+    FIND,
+
     UNK
 };

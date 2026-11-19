@@ -78,12 +78,15 @@ namespace cmd{
                 return "Manually recalculated all hashes in current working directory. `ndep all` to see updated hashes. \n";
             
             case CMDS::RENAME:
-                dir_error = dir::renameLibrary(variables[0], alt_stream);
+                dir_error = dir::renameLibrary(variables[0],variables[1], alt_stream);
                 if(dir_error!=dir::SUCCESS){
                     return handler::HandleErrorMessage(dir_error);
                 }
-                return "Found. \n";
+                return "Renamed library successfully. \n";
+
+            case CMDS::FIND:
+                return dir::findAllLibraryPaths(variables[0]);
         }
-        return "ERROR?:745 \n";
+        return "ERROR?:745 \n"; //random ass error code btw lol. just wanted to see some cool numbers if things go south
     }
 }

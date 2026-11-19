@@ -282,24 +282,52 @@ namespace dir{ //finding files, filtering files, and managing original files and
     }
 
     //`ndep rename {oldname} {newname}` renames every tracked copy of {oldname}
-    RETURN renameLibrary(const std::string& name, const std::string& alt_stream){
-        //check whether name exists in both data indexes.
-        auto it =  FileHandle::id_hash_map.find(name);
+    RETURN renameLibrary(const std::string& old_name,const std::string& name, const std::string& alt_stream){
+        //check whether old name exists in both data indexes.
+        auto it =  FileHandle::id_hash_map.find(old_name);
         if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
 
-        auto it2 =  FileHandle::id_fileid_map.find(name);
+        auto it2 =  FileHandle::id_fileid_map.find(old_name);
         if(it2==FileHandle::id_fileid_map.end()) return INVALID_NAME;
+
+        //check if new name exists. return if yes
+        if(FileHandle::id_hash_map.find(name)!=FileHandle::id_hash_map.end())return INVALID_NAME;
+        if(FileHandle::id_fileid_map.find(name)!=FileHandle::id_fileid_map.end())return INVALID_NAME;
 
         std::string path;
         //loop through each entry of fileinformation.
         for(const auto& info : it2->second){
             path = mdata::GetPathFromId(info);
-            std::cout<<path<<'\n'; //for now just prints, then will actually navigate to the file and change the metadata
-            //each printed path is structured as such: `\\?\C:\path\to\file`. after some research ->
-            //turns out normally, windows applies path processing rules like normalizing path components, and traditional `MAX_PATH` limit. ->
-            //starting the file with `\\?\` tells windows apis to bypass the restrictions. idk what normalizing path components means but all ik im bypassing that shit like a chad
+            if(mdata::ReadMData(path, alt_stream, "ID")==old_name){
+                if(!mdata::WriteMData(path, alt_stream, "ID", name)) return INVALID_FILE;
+            }
         }
+
+        auto hash = it->second;
+        auto fileids = std::move(it2->second);
+
+        FileHandle::id_hash_map.erase(it);
+        FileHandle::id_fileid_map.erase(it2);
+
+        //change name in both maps.
+        FileHandle::id_hash_map.emplace(name, std::move(hash));
+        FileHandle::id_fileid_map.emplace(name, std::move(fileids)); //move no copy, i physically dont know the difference, moving is just copying but deleting the og copy..
+
         return SUCCESS;
+        
+    }
+
+    std::string findAllLibraryPaths(const std::string& name){
+        auto it = FileHandle::id_fileid_map.find(name);
+        if(FileHandle::id_hash_map.find(name)==FileHandle::id_hash_map.end())return "nth found \n";
+        if(it==FileHandle::id_fileid_map.end())return "nth found \n";
+
+        std::string returnstr;
+        for(const auto& info : it->second){
+            returnstr += mdata::GetPathFromId(info) + '\n';
+        }
+
+        return returnstr;
         
     }
 }
