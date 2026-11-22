@@ -49,6 +49,17 @@ ndep rcalc
 ```
 Manually recalculate content hash for every signed file in working directory. (Mainly a debugger, useful for checking if a commands isnt updating metadata correctly)
 
+```bash
+ndep find {libname}
+```
+Find where every registered copy of {libname} currently is.
+
+
+```bash
+ndep rename {old_name} {new_name}
+```
+Rename a library and all of its registered distributed copies.
+
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
 
