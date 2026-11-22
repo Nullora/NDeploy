@@ -311,7 +311,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         //change name in both maps.
         FileHandle::id_hash_map.emplace(name, std::move(hash));
-        FileHandle::id_fileid_map.emplace(name, std::move(fileids)); //move no copy, i physically dont know the difference, moving is just copying but deleting the og copy..
+        FileHandle::id_fileid_map.emplace(name, std::move(fileids)); //move not copy, i physically dont know the difference, moving is just copying but deleting the og copy, but what do i know
 
         return SUCCESS;
         

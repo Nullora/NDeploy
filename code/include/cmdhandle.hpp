@@ -68,6 +68,7 @@ namespace cmd{
                 for(auto& [id, hash] : FileHandle::id_hash_map){
                     ret += "Local Hash Index >> " + id + ": " + hash + '\n';
                 }
+                ret += "Libraries could be signed and in CWD but not in the official repository, causing `ghost libraries`. theres no fix for this yet, but as developement continues, a solution will be found. \n";
                 return ret;
             
             case CMDS::RCALC:

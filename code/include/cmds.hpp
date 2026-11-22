@@ -9,7 +9,7 @@ enum class CMDS {
     RENAME, //w
     ALL, //w
     RCALC, //w
-    FIND,
+    FIND, //w
 
     UNK
 };

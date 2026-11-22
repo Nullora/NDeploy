@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <string>
 
-//copied from dir.hpp so i can make a vector with fileinformation
     typedef struct FileInformation{
         ULONGLONG VolumeSN;
         FILE_ID_128 FileId;
