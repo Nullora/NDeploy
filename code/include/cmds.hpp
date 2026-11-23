@@ -14,8 +14,10 @@ enum class CMDS {
     FIND, //w
     //GROUP
     ADDTOGROUP, //w
-    IMPORTGROUP,
-    UPDATEGROUP,
+    IMPORTGROUP, //w
+    UPDATEGROUP, //w
+    ALLG, //w
+    ALLIG,  
 
     UNK
 };

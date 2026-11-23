@@ -27,6 +27,8 @@ public:
         m["atg"] = CMDS::ADDTOGROUP;
         m["importg"] = CMDS::IMPORTGROUP;
         m["updateg"] = CMDS::UPDATEGROUP;
+        m["allg"] = CMDS::ALLG;
+        m["allig"] = CMDS::ALLIG;
         return m;
     }();
 

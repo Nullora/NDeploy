@@ -64,10 +64,10 @@ namespace cmd{
             case CMDS::ALL:
                 signed_files = dir::GetAllSignedFiles(std::filesystem::current_path(), alt_stream);
                 for(auto& file : signed_files){
-                    ret += "Signed Files in CWD >> " + mdata::ReadMData(file.string(), alt_stream, "ID") + ": " + mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") + '\n';
+                    ret += "CWD >> " + mdata::ReadMData(file.string(), alt_stream, "ID") + ": " + mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") + '\n';
                 }
                 for(auto& [id, hash] : FileHandle::id_hash_map){
-                    ret += "Local Hash Index >> " + id + ": " + hash + '\n';
+                    ret += "Hash Index >> " + id + ": " + hash + '\n';
                 }
                 #ifdef DIR_DEBUG
                     ret += "Libraries could be signed and in CWD but not in the official repository, causing `ghost libraries`. theres no fix for this yet, but as developement continues, a solution will be found. \n";
@@ -103,6 +103,18 @@ namespace cmd{
 
             case CMDS::UPDATEGROUP:
                 dir_error = dir::UpdateGroup(variables[0], rep_path, alt_stream);
+
+            case CMDS::ALLG:
+                for(auto& [group, it] : FileHandle::group_id_map){
+                    ret += "Group Index >> " + group + "\n";
+                }
+                return ret;
+            case CMDS::ALLIG:
+                ret += "In group " + variables[0] + ": \n";
+                for(auto& [id, placeholder] : FileHandle::group_id_map[variables[0]]){
+                    ret += "    Id >> " + id + "\n";
+                }
+                return ret;
         }
         return "ERROR?:745 \n"; //random ass error code btw lol. just wanted to see some cool numbers if things go south
     }

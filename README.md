@@ -42,7 +42,7 @@ Updates current imported library from local repository objects. (later ill track
 ```bash
 ndep all
 ```
-Shows every signed file in CWD along with every signed file in local hash index. (Mainly a debugger, you could use it to check library spelling if u forgot and remember every imported library in cwd)
+Shows every signed file in CWD along with every signed file in the local hash index. (Mainly a debugger, you could use it to check library spelling if u forgot and remember every imported library in cwd.)
 
 ```bash
 ndep rcalc
@@ -74,6 +74,16 @@ Imports every library in `{group_name}` using each library's stored original fil
 ndep updateg {group_name}
 ```
 Updates every imported library in `{group_name}` from the latest repository objects.
+
+```bash
+ndep allg
+```
+Lists every group in the local group index.
+
+```bash
+ndep allig {group_name}
+```
+Lists every library ID contained in `{group_name}`.
 
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
