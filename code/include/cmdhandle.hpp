@@ -40,7 +40,7 @@ namespace cmd{
                 return "error unsigning file \n";
             
             case CMDS::IMPORT:
-                dir_error = dir::ImportRepositoryObject(variables[0], std::filesystem::current_path().string(), variables[1], rep_path, alt_stream);
+                dir_error = dir::ImportRepositoryObject(variables[0], std::filesystem::current_path().string(), rep_path, alt_stream);
                 if(dir_error!=dir::SUCCESS){
                     return handler::HandleErrorMessage(dir_error);
                 }
@@ -69,7 +69,9 @@ namespace cmd{
                 for(auto& [id, hash] : FileHandle::id_hash_map){
                     ret += "Local Hash Index >> " + id + ": " + hash + '\n';
                 }
-                ret += "Libraries could be signed and in CWD but not in the official repository, causing `ghost libraries`. theres no fix for this yet, but as developement continues, a solution will be found. \n";
+                #ifdef DIR_DEBUG
+                    ret += "Libraries could be signed and in CWD but not in the official repository, causing `ghost libraries`. theres no fix for this yet, but as developement continues, a solution will be found. \n";
+                #endif
                 return ret;
             
             case CMDS::RCALC:
@@ -88,6 +90,19 @@ namespace cmd{
 
             case CMDS::FIND:
                 return dir::findAllLibraryPaths(variables[0]);
+
+            case CMDS::ADDTOGROUP:
+                dir_error = dir::AddFileToGroup(variables[1], variables[0]);
+                if(dir_error!=dir::SUCCESS) return handler::HandleErrorMessage(dir_error);
+                return "Added to group. \n";
+            
+            case CMDS::IMPORTGROUP:
+                dir_error = dir::ImportGroup(variables[0], rep_path, alt_stream);
+                if(dir_error!=dir::SUCCESS) return handler::HandleErrorMessage(dir_error);
+                return "Imported group. \n";
+
+            case CMDS::UPDATEGROUP:
+                dir_error = dir::UpdateGroup(variables[0], rep_path, alt_stream);
         }
         return "ERROR?:745 \n"; //random ass error code btw lol. just wanted to see some cool numbers if things go south
     }

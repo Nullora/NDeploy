@@ -24,6 +24,9 @@ public:
         m["all"] = CMDS::ALL;
         m["rcalc"] = CMDS::RCALC;
         m["find"] = CMDS::FIND;
+        m["atg"] = CMDS::ADDTOGROUP;
+        m["importg"] = CMDS::IMPORTGROUP;
+        m["updateg"] = CMDS::UPDATEGROUP;
         return m;
     }();
 
@@ -40,6 +43,7 @@ public:
         m[dir::UPTODATE] = "Library is already up to date. \n";
         m[dir::UNSIGNED] = "File is unsigned. \n";
         m[dir::NAME_MATCH_ERROR] = "Library name doesnt match source file name. \n";
+        m[dir::NEW_GROUP] = "Created a new group. \n";
         return m;
     }();
 

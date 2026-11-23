@@ -20,6 +20,8 @@ class FileHandle{
 public:
     static inline std::unordered_map<std::string, std::string> id_hash_map; //id -> hash
     static inline std::unordered_map<std::string, std::vector<FileInformation>> id_fileid_map; //ndep id -> windows file id. used to track files globally and find their locations.
+    static inline std::unordered_map<std::string, std::unordered_map<std::string, int>> group_id_map; //gim[group][id] = placeholder.
+
 
     //greatest ai function of all time, im not learning how windows stores its sloppy file ids or how to decode them from hex to a 16byte fileid, go fuck yourself you son of a bitch
     static bool ParseFileID(
@@ -146,6 +148,46 @@ public:
                     }
                     id_fileid_map[id] = std::move(fileids); //move instead of copy cz were cool like that (stackoverflow told me to do this)
                 }
+            }
+        }
+    }
+
+    static bool save_group_id(const std::string& path){
+        bool first = true;
+        std::filesystem::create_directories(std::filesystem::path(path).parent_path());
+        HANDLE file = CreateFileA(path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
+        if(file==INVALID_HANDLE_VALUE) return false;
+        std::string out;
+        for(auto& [group, it] : group_id_map){
+            out += "gim:" + group + " ";
+            for(auto& [id, placeholder] : it){
+                if(first) {out += id; first=false;}
+                else{out += ',' + id;}
+            }
+        }
+        DWORD written;
+        bool success = WriteFile(file, out.data(), static_cast<DWORD>(out.size()), &written, nullptr);
+        CloseHandle(file);
+        return success && written == out.size();
+    }
+
+    static void load_group_id(const std::string& path){
+        std::ifstream in(path);
+        std::string line;
+
+        while(std::getline(in, line)){
+            if(!line.starts_with("gim:")) continue;
+
+            line = line.substr(4);
+            const size_t separator = line.find(' ');
+            if(separator == std::string::npos) continue;
+
+            const std::string group = line.substr(0, separator);
+            std::stringstream ids(line.substr(separator + 1));
+            std::string id;
+
+            while(std::getline(ids, id, ',')){
+                if(!id.empty()) group_id_map[group][id] = 1;
             }
         }
     }

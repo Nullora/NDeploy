@@ -22,11 +22,11 @@ ndep unsign {file_name}
 Unsigns a file by deleting the ndep metadata streams from it. The repository object stays where it is, only the index of the object gets deleted.
 
 ```bash
-ndep import {library_name} {filename}
+ndep import {library_name}
 ```
-Looks up a library `{library_name}` in the local index, decompresses its repository copy, and writes it into the current working directory as `{filename}`.
+Looks up a library `{library_name}` in the local index, decompresses its repository copy, and writes it into the current working directory using the original filename stored with the repository object.
 (Later ill track every single imported file so it can know where its copies live, and if we `ndep unsign` a library, all its copies are unsigned, and only their contents will remain)
-(**WARNING:** Make sure `{filename}` isnt already used, as ndep will simply overwrite the current existing file.)
+(**WARNING:** Make sure the original filename isnt already used, as `ndep` will simply overwrite the current existing file.)
 
 ```bash
 ndep push {library_name} {source_of_push}
@@ -60,6 +60,21 @@ ndep rename {old_name} {new_name}
 ```
 Rename a library and all of its registered distributed copies.
 
+```bash
+ndep atg {group_name} {library_name}
+```
+Adds `{library_name}` to `{group_name}`. Groups are stored in the local `.ndep` index and can contain multiple libraries.
+
+```bash
+ndep importg {group_name}
+```
+Imports every library in `{group_name}` using each library's stored original filename.
+
+```bash
+ndep updateg {group_name}
+```
+Updates every imported library in `{group_name}` from the latest repository objects.
+
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
 
@@ -74,11 +89,14 @@ Files are hashed with SHA-256 and stored in a Git-ish `objects` layout, with com
 Other features include:
 
 - NTFS Alternate Data Streams for storing library names, version information, copy information, and content hashes without modifying the files normal contents
+- Repository objects preserve the original library filename so imports can be named automatically
 - Windows NTFS File ID tracking for locating a signed file by its Windows-assigned identity instead of depending on its current filename
 - Persistent tracking across program runs through the `.ndep` file-ID and library-hash indexes
+- Library groups can be imported or updated together instead of handling every library manually
 - SHA-256 content hashing for identifying library versions and detecting changed content (Copied from git)
 - content addressed repository objects, where each stored version is placed using its hash
 - zlib compression for repository objects, keeping stored library copies smaller (Copied from git)
+- When the Visual Studio integration is enabled, imported files are automatically added to the project's `.vcxproj`, so they do not need to be added to the solution manually (is on by default, to turn off you have to modify `main.cpp` and remove `#define VS_SOLUTION` and recompile. ill make it easier in the future).
 - A completely local workflow with no server, account, or external service required
 
 ## For Who

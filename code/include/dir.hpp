@@ -4,6 +4,7 @@
 #include<filesystem>
 #include<array>
 #include<Windows.h>
+#include <algorithm>
 #ifndef FileIdInfo
 #define FileIdInfo ((FILE_INFO_BY_HANDLE_CLASS)18)
 #endif
@@ -30,7 +31,9 @@ namespace dir{ //finding files, filtering files, and managing original files and
         //update
         UPTODATE,
         UNSIGNED,
-        NAME_MATCH_ERROR
+        NAME_MATCH_ERROR,
+        //group
+        NEW_GROUP
 
     };
 
@@ -87,9 +90,6 @@ namespace dir{ //finding files, filtering files, and managing original files and
     //################ ndep sign {vars}
     RETURN MakeRepositoryObject(const mdata::FileRep& filerep, const std::string rep_path, const std::string alt_stream){
         std::ifstream file0(filerep.og_path, std::ios::binary);
-        //c++ interepts it as a function so we use double parentheses to clarify declaration. we could use brace initialization but ->
-        //that can select `intialized_list` ->
-        //constructor if possible, to focrce iterator range constructor we instead use double parentheses :3
         std::vector<unsigned char> bytes ( (std::istreambuf_iterator<char>(file0) ), std::istreambuf_iterator<char>() );
         file0.close();
         std::string content_hash = nhash::SHA256File(filerep.og_path);
@@ -119,6 +119,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         //original size -> metadata of repo object for decompression of object later
         mdata::WriteMData(object_path.string(), alt_stream, "OG_SIZE", std::to_string(bytes.size()));
+        mdata::WriteMData(object_path.string(), alt_stream, "OG_FILENAME", filerep.og_path.string()); 
         //apply name + version_id to repository object's alternate stream
         bool succ = mdata::ApplyHeaderData(object_path.string(),alt_stream,filerep.id,"","REP_LIB",filerep.version_id);
 
@@ -130,10 +131,8 @@ namespace dir{ //finding files, filtering files, and managing original files and
     }
 
 
-    // ######## ndep import {lib} {filename}
-    //imports the library {lib} with assigned filename {filename}. the filename doesnt change anything but the name itself, ndep will still work fine, just make sure its an original file ->
-    //so ndep doesnt overwrite a file, as it will do so with no warning.
-    RETURN ImportRepositoryObject(const std::string& id, std::string target, std::string filename,const std::string& rep_path, const std::string& alt_stream){
+    // ######## ndep import {lib}
+    RETURN ImportRepositoryObject(const std::string& id, std::string target,const std::string& rep_path, const std::string& alt_stream){
         //get hash from id_hash_map
         auto it = FileHandle::id_hash_map.find(id);
         if(it==FileHandle::id_hash_map.end()) return INVALID_NAME;
@@ -143,6 +142,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::string name = hash.substr(2);
         std::string dir = hash.substr(0,2);
         std::filesystem::path object_path = std::filesystem::path(rep_path) / "objects" / dir / name;
+        std::string filename = mdata::ReadMData(object_path.string(), alt_stream, "OG_FILENAME");
 
         //DIR_DEBUG
         #ifdef DIR_DEBUG
@@ -349,5 +349,47 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         return returnstr;
         
+    }
+
+    RETURN AddFileToGroup(const std::string& name, const std::string& group){
+        bool newGroup = false; //for fancy return codes.
+        //check for existance of id + existance of group.
+        auto id = FileHandle::id_hash_map.find(name);
+        if(id==FileHandle::id_hash_map.end()) return INVALID_NAME;
+
+        auto grp = FileHandle::group_id_map.find(group);
+        if(grp==FileHandle::group_id_map.end()) newGroup=true;
+
+        //check for existance of id in group.
+        auto it = FileHandle::group_id_map[group].find(id->first);
+        if(it!=FileHandle::group_id_map[group].end()) return FILE_EXISTS;
+
+        //append tag to group / new group
+        FileHandle::group_id_map[group][id->first] = 1;
+        //if(newGroup) return NEW_GROUP;
+        return SUCCESS;
+    }
+
+    RETURN ImportGroup(const std::string& group, const std::string& rep_path, const std::string& alt_stream){
+        auto grp = FileHandle::group_id_map.find(group);
+        if(grp==FileHandle::group_id_map.end()) return INVALID_NAME;
+        RETURN code = FAILURE;
+
+        for(auto& [id, placeholder] : FileHandle::group_id_map[group]){
+            //we need some way of preserving the filename or automating the naming.
+            code = ImportRepositoryObject(id, std::filesystem::current_path().string(), rep_path, alt_stream);
+        }
+        return code;
+    }
+
+    RETURN UpdateGroup(const std::string& group, const std::string& rep_path, const std::string& alt_stream){
+        auto grp = FileHandle::group_id_map.find(group);
+        if(grp==FileHandle::group_id_map.end()) return INVALID_NAME;
+        RETURN code = FAILURE;
+
+        for(auto& [id, placeholder] : grp->second){
+            code = UpdateImportedFile(id, alt_stream, rep_path);
+        }
+        return code;
     }
 }
