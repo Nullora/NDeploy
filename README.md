@@ -107,7 +107,11 @@ Im really proud of this project cz i actually looked at my old code, saw flaws, 
 I also ended up learning a shitton of new stuff and new win32 functions, so thats super useful in the future :3
 
 ## AI usage
-I use AI in this project, heres where exactly:
+I use AI in this project mostly as a time saving implementation tool to write functions that I already understand conceptually but do not want to spend time implementing from scratch.
+
+I also use AI to update this README when I add new features or change existing commands cz i cant be assed :3
+
+The main files where I used AI for implementation are:
 - code/include/hash.hpp
 - code/include/compression.hpp
-- I did it cz honestly i dont wanna dive in sha256 and cryptography, and cz i dont wanna read zlib and their old hag docs, so ai did the bs for me and i focused on the hard parts (i think)
+- I used it for the SHA-256 and compression-related functions because I understand what they need to do, but did not want to spend time diving deeply into cryptography and zlib internals.
