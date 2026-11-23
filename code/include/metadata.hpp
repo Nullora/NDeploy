@@ -171,8 +171,11 @@ namespace mdata{ //metadata handling
 
         FileInformation info = GetWindowsFileId(bol);
         CloseHandle(bol);
-        std::cout<<"Given File Path: "<<path.string()<<'\n';
-        std::cout<<"Recalculated File Path: "<<GetPathFromId(info)<<'\n';
+
+        #ifdef MDATA_DEBUG
+            std::cout<<"Given File Path: "<<path.string()<<'\n';
+            std::cout<<"Recalculated File Path: "<<GetPathFromId(info)<<'\n';
+        #endif
 
         lib.id = name;
         lib.content_hash = content_hash;

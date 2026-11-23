@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <string>
 
+#include <pugixml.hpp>
+
     typedef struct FileInformation{
         ULONGLONG VolumeSN;
         FILE_ID_128 FileId;
@@ -146,5 +148,131 @@ public:
                 }
             }
         }
+    }
+
+
+    static std::vector<std::filesystem::path> GetAllFiles(std::filesystem::path path){
+        std::vector<std::filesystem::path> all_files;
+        if(!std::filesystem::exists(path)) return {};
+            
+        std::filesystem::recursive_directory_iterator it(path);
+        
+
+        std::filesystem::recursive_directory_iterator end; //idk if this is a good way to do it but its all i could think of :c
+        while(it != end){
+            all_files.push_back(it->path());
+            ++it;
+        }
+        return all_files;
+        
+    }
+
+    static bool modify_vcxproj(const std::string& cwd, std::string& filename) {
+        std::vector<std::filesystem::path> all_files = GetAllFiles(cwd);
+
+        std::filesystem::path vcxproj_file;
+
+        for (auto& file : all_files) {
+            if (file.extension() == ".vcxproj") {
+                vcxproj_file = file;
+                break;
+            }
+        }
+
+        if (vcxproj_file.empty()) {
+            std::cerr << "could not find .vcxproj file\n";
+            return false;
+        }
+
+        // load xml
+        pugi::xml_document doc;
+
+        pugi::xml_parse_result result = doc.load_file(vcxproj_file.string().c_str());
+
+        if (!result) {
+            std::cerr << "XML failed: " << result.description() << '\n';
+            return false;
+        }
+
+        pugi::xml_node root = doc.document_element();
+
+        // file type, rn only source + header.
+        std::filesystem::path file_path(filename);
+        std::string extension = file_path.extension().string();
+
+        std::string node_type;
+
+        if (extension == ".cpp" || extension == ".c") {
+            node_type = "ClCompile";
+        }
+        else if (extension == ".h" || extension == ".hpp") {
+            node_type = "ClInclude";
+        }
+        else {
+            std::cerr << "Unsupported file extension: " << extension << '\n';
+            return false;
+        }
+
+        // Get path relative to the project file
+        std::filesystem::path relative_path =
+            std::filesystem::relative(
+                std::filesystem::absolute(filename),
+                vcxproj_file.parent_path()
+            );
+
+        std::string relative_filename = relative_path.generic_string();
+
+        // Find an existing ItemGroup containing the appropriate node
+        pugi::xml_node target_group;
+
+        for (pugi::xml_node group : root.children()) {
+            if (std::string(group.name()) != "ItemGroup")
+                continue;
+
+            for (pugi::xml_node child : group.children()) {
+                if (std::string(child.name()) == node_type) {
+                    target_group = group;
+                    break;
+                }
+            }
+
+            if (target_group)
+                break;
+        }
+
+        // Create ItemGroup if one doesn't exist
+        if (!target_group) {
+            target_group = root.append_child("ItemGroup");
+        }
+
+        // Check for duplicates
+        for (pugi::xml_node group : root.children()) {
+            if (std::string(group.name()) != "ItemGroup")
+                continue;
+
+            for (pugi::xml_node child : group.children()) {
+                if (std::string(child.name()) == node_type) {
+                    if (relative_filename == child.attribute("Include").as_string()) {
+                        std::cerr << "File already exists in project\n";
+                        return false;
+                    }
+                }
+            }
+        }
+
+        // Add file
+        pugi::xml_node new_file = target_group.append_child(node_type.c_str());
+
+        new_file.append_attribute("Include") = relative_filename;
+
+        // Save project
+        if (!doc.save_file(vcxproj_file.string().c_str(), "    ")) {
+            std::cerr << "Failed to save project file\n";
+            return false;
+        }
+
+        std::cout << "Successfully added " << relative_filename << " to .vcxproj\n";
+
+        return true;
     }
 };

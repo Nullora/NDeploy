@@ -1,8 +1,9 @@
 CXX = g++
 LIBS = -lbcrypt -lz
-CXXFLAGS = -std=c++20 -O2 -D_WIN32_WINNT=0x0602 -Icode/include
+CXXFLAGS = -std=c++20 -O2 -D_WIN32_WINNT=0x0602 -Icode/include -Icode/libs/pugixml
 TARGET = code/build/ndep
-SRCS = code/src/main.cpp
+SRCS = code/src/main.cpp \
+	code/libs/pugixml/pugixml.cpp
 
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET) $(LIBS)

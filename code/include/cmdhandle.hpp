@@ -1,15 +1,16 @@
 #pragma once
 #include"tkn.hpp"
 #include"metadata.hpp"
-#include<dir.hpp>
 #include<handler.hpp>
+#include<dir.hpp>
+
 #include<vector>
 #include<string>
 #include<iostream>
 #include<filesystem>
 
 namespace cmd{
-    std::string handleCommands(CMDS& cmd, const std::vector<std::string>& variables, const std::string& alt_stream, const std::string& rep_path){
+    std::string handleCommands(CMDS& cmd, const std::vector<std::string>& variables ,const std::string& alt_stream, const std::string& rep_path){
         if(cmd==CMDS::UNK) return "unknown command";
         mdata::FileRep file;
         mdata::RETURN mdata_error;
