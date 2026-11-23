@@ -224,7 +224,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         mdata::FileRep filerep;
         filerep.og_path = source;
         filerep.content_hash = source_hash;
-        MakeRepositoryObject(filerep, rep_path, alt_stream);
+        if(MakeRepositoryObject(filerep, rep_path, alt_stream)!=SUCCESS) return FAILURE;
 
         mdata::ApplyHeaderData(source, alt_stream, "", source_hash); //only change sourcehash in original metadata for now. ill change copyid and versionid once i actually use them
 
