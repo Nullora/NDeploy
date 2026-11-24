@@ -1,6 +1,3 @@
-#define DIR_DEBUG
-#define MDATA_DEBUG
-#define VS_SOLUTION //for now this is turned on, eventually ill make it a flag.
 #include<tkn.hpp>
 #include<metadata.hpp>
 #include<cmdhandle.hpp>
@@ -12,9 +9,11 @@ using namespace std;
 const string alt_stream = "NDEP";
 
 const string rep_name = "C:\\NFramework\\.ndep"; //permanent repository, will change to a dynamic repo so you can switch repos and segment library genres into their own repo.
-const string id_hash_path = rep_name + "\\data\\ihp";
-const string id_fileid_path = rep_name + "\\data\\ifp";
-const string group_ids_path = rep_name + "\\data\\gip";
+const string id_hash_path = rep_name + "\\data\\ihp";//id_hash_path
+const string id_fileid_path = rep_name + "\\data\\ifp";//id_fileid_path
+const string group_ids_path = rep_name + "\\data\\gip";//group_id_path
+const string config_path = rep_name + "\\config\\config";//config
+const string last_push_path = rep_name + "\\config\\lpp";//last_push_path
 
 int main(int argc, char* argv[]){
     if(argc < 2) return 0;
@@ -22,6 +21,7 @@ int main(int argc, char* argv[]){
     FileHandle::load_id_hash(id_hash_path);
     FileHandle::load_id_fileid(id_fileid_path);
     FileHandle::load_group_id(group_ids_path);
+    FileHandle::load_config(config_path);
     //refresh id_fileid
     mdata::RefreshID_FILEID_map();
 
@@ -47,12 +47,13 @@ int main(int argc, char* argv[]){
 
     
     CMDS command = tkn::GetCommand({argv[1]});
-    string ret = cmd::handleCommands(command, variables, alt_stream, rep_name);
+    string ret = cmd::handleCommands(command, variables, flags, alt_stream, rep_name);
 
 
     cout<<ret;
     FileHandle::save_id_hash(id_hash_path);
     FileHandle::save_id_fileid(id_fileid_path);
     FileHandle::save_group_id(group_ids_path);
+    FileHandle::save_config(config_path);
 
 }

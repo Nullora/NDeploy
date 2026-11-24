@@ -29,6 +29,17 @@ public:
         m["updateg"] = CMDS::UPDATEGROUP;
         m["allg"] = CMDS::ALLG;
         m["allig"] = CMDS::ALLIG;
+        m["config"] = CMDS::CONFIG;
+        m["lconfig"] = CMDS::LISTCONFIG;
+        return m;
+    }();
+
+    static inline const std::unordered_map<std::string, CONFIGS> configs_map = []{
+        std::unordered_map<std::string, CONFIGS> m;
+        m["fsign"] = CONFIGS::FORCE_SIGN;
+        m["vs"] = CONFIGS::VS_SOLUTION;
+        m["mdebug"] = CONFIGS::MDATA_DEBUG;
+        m["ddebug"] = CONFIGS::DIR_DEBUG;
         return m;
     }();
 
@@ -46,6 +57,7 @@ public:
         m[dir::UNSIGNED] = "File is unsigned. \n";
         m[dir::NAME_MATCH_ERROR] = "Library name doesnt match source file name. \n";
         m[dir::NEW_GROUP] = "Created a new group. \n";
+        
         return m;
     }();
 

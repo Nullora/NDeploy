@@ -17,7 +17,11 @@ enum class CMDS {
     IMPORTGROUP, //w
     UPDATEGROUP, //w
     ALLG, //w
-    ALLIG,  
+    ALLIG, 
+    
+    //CONFIG
+    CONFIG,
+    LISTCONFIG,
 
     UNK
 };

@@ -85,6 +85,16 @@ ndep allig {group_name}
 ```
 Lists every library ID contained in `{group_name}`.
 
+```bash
+ndep config -fsign={0|1} -vs={0|1} -mdebug={0|1} -ddebug={0|1}
+```
+Updates persistent configuration values. `fsign` allows signing over existing names or signatures, `vs` enables Visual Studio project integration, `mdebug` enables metadata debugging, and `ddebug` enables directory debugging. Only the options provided are changed.
+
+```bash
+ndep lconfig
+```
+Lists the currently saved configuration values.
+
 ## Features
 The design takes a lot of inspiration from Git's architecture: content addressed objects, hashes as identity, a tiny local index, and keeping the actual stored data separate from the files people work on. Borrowing the parts that make Git feel so reliable is pretty fun :3
 
@@ -106,7 +116,8 @@ Other features include:
 - SHA-256 content hashing for identifying library versions and detecting changed content (Copied from git)
 - content addressed repository objects, where each stored version is placed using its hash
 - zlib compression for repository objects, keeping stored library copies smaller (Copied from git)
-- When the Visual Studio integration is enabled, imported files are automatically added to the project's `.vcxproj`, so they do not need to be added to the solution manually (is on by default, to turn off you have to modify `main.cpp` and remove `#define VS_SOLUTION` and recompile. ill make it easier in the future).
+- When `vs=1` is enabled, imported files are automatically added to the project's `.vcxproj`, so they do not need to be added to the solution manually.
+- Configuration values are saved in the local `.ndep` repository and loaded again on later runs.
 - A completely local workflow with no server, account, or external service required
 
 ## For Who

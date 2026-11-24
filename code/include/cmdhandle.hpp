@@ -10,7 +10,7 @@
 #include<filesystem>
 
 namespace cmd{
-    std::string handleCommands(CMDS& cmd, const std::vector<std::string>& variables ,const std::string& alt_stream, const std::string& rep_path){
+    std::string handleCommands(CMDS& cmd, const std::vector<std::string>& variables, std::vector<std::string>& flags, const std::string& alt_stream, const std::string& rep_path){
         if(cmd==CMDS::UNK) return "unknown command";
         mdata::FileRep file;
         mdata::RETURN mdata_error;
@@ -21,7 +21,7 @@ namespace cmd{
         switch(cmd){
             case CMDS::SIGN:
                 //SIGN FILE
-                file =  mdata::SignFile(variables[0], variables[1], alt_stream, 1);
+                file =  mdata::SignFile(variables[0], variables[1], alt_stream);
                 mdata_error = file.last_return;
                 if(mdata_error!=mdata::SIGN_SUCCESS){
                     return handler::HandleErrorMessage(mdata_error);
@@ -113,6 +113,36 @@ namespace cmd{
                 ret += "In group " + variables[0] + ": \n";
                 for(auto& [id, placeholder] : FileHandle::group_id_map[variables[0]]){
                     ret += "    Id >> " + id + "\n";
+                }
+                return ret;
+
+            case CMDS::CONFIG:
+                for(auto& flag : flags){
+                    if(!flag.starts_with('-')) continue; //gotta check, u never know :P
+                    const size_t eq = flag.find('=');
+                    if(eq==std::string::npos) continue;
+                    const std::string key = flag.substr(1, eq-1);
+                    const std::string value = flag.substr(eq+1);
+                    auto it = statics::configs_map.find(key);
+                    if(it==statics::configs_map.end()) return "Flag not found. \n";
+                    FileHandle::configs[it->second] = value;
+                }
+                return "Completed config. \n";
+            
+            case CMDS::LISTCONFIG:
+                for(auto& [config, value] : FileHandle::configs){
+                    const auto it = std::find_if(
+                        statics::configs_map.begin(),
+                        statics::configs_map.end(),
+                        [config](const auto& entry){
+                            return entry.second == config;
+                        }
+                    );
+                    if(it != statics::configs_map.end()){
+                        ret += "-" + it->first + " = " + value + "\n";
+                    }else{
+                        ret += "-unknown_config="+value+"\n";
+                    }
                 }
                 return ret;
         }

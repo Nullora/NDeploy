@@ -134,19 +134,19 @@ namespace mdata{ //metadata handling
         return true;
     }
 
-    FileRep SignFile(std::filesystem::path path, std::string name, std::string alt_stream, bool force_sign = false){
+    FileRep SignFile(std::filesystem::path path, std::string name, std::string alt_stream){
         FileRep lib;
         lib.last_return = RETURN::FAIL;
         //check if name is taken. we do this at the top so we dont waste computing power before checking
         auto it = FileHandle::id_hash_map.find(name);
-        if(it!=FileHandle::id_hash_map.end() && !force_sign){
+        if(it!=FileHandle::id_hash_map.end() && FileHandle::configs[CONFIGS::FORCE_SIGN]!="1"){
             lib.last_return = RETURN::INVALID_NAME;
             return lib;
         }
 
 
         //check if file is already signed
-        if(ReadMData(path.string(),alt_stream,"ID")!="UNSIGNED" && !force_sign){
+        if(ReadMData(path.string(),alt_stream,"ID")!="UNSIGNED" && FileHandle::configs[CONFIGS::FORCE_SIGN]!="1"){
             lib.last_return = RETURN::FILE_ALREADY_SIGNED;
             return lib;
         }
@@ -172,10 +172,10 @@ namespace mdata{ //metadata handling
         FileInformation info = GetWindowsFileId(bol);
         CloseHandle(bol);
 
-        #ifdef MDATA_DEBUG
+        if(FileHandle::configs[CONFIGS::MDATA_DEBUG]=="1"){
             std::cout<<"Given File Path: "<<path.string()<<'\n';
             std::cout<<"Recalculated File Path: "<<GetPathFromId(info)<<'\n';
-        #endif
+        }
 
         lib.id = name;
         lib.content_hash = content_hash;

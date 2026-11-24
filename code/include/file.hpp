@@ -10,24 +10,37 @@
 
 #include <pugixml.hpp>
 
-    typedef struct FileInformation{
-        ULONGLONG VolumeSN;
-        FILE_ID_128 FileId;
-        bool lasterror;
-    }FileInformation;
+typedef struct FileInformation{
+    ULONGLONG VolumeSN;
+    FILE_ID_128 FileId;
+    bool lasterror;
+}FileInformation;
+
+enum class CONFIGS{
+    //dir
+    VS_SOLUTION,
+        //debug
+    DIR_DEBUG,
+
+    //mdata
+    FORCE_SIGN,
+        //debug
+    MDATA_DEBUG
+};
 
 class FileHandle{
 public:
+    //rep\data\.
     static inline std::unordered_map<std::string, std::string> id_hash_map; //id -> hash
     static inline std::unordered_map<std::string, std::vector<FileInformation>> id_fileid_map; //ndep id -> windows file id. used to track files globally and find their locations.
     static inline std::unordered_map<std::string, std::unordered_map<std::string, int>> group_id_map; //gim[group][id] = placeholder.
 
+    //rep\config\.
+    static inline std::unordered_map<CONFIGS, std::string> configs;//configs[config] = value;
+
 
     //greatest ai function of all time, im not learning how windows stores its sloppy file ids or how to decode them from hex to a 16byte fileid, go fuck yourself you son of a bitch
-    static bool ParseFileID(
-        const std::string& hex,
-        FILE_ID_128& fileid
-    ) {
+    static bool ParseFileID(const std::string& hex, FILE_ID_128& fileid) {
         if (hex.size() != 32) return false;
 
         auto hexValue = [](char c) -> int {
@@ -49,7 +62,7 @@ public:
         return true;
     }
 
-    //functions written by me :3 (not hex slop, im actually so fucking mad at hex rn u legit dont even know thats ong)
+    //functions written by me :3 (not hex slop)
     static bool save_id_hash(const std::string& path){
         std::filesystem::create_directories(std::filesystem::path(path).parent_path());
         HANDLE file = CreateFileA(path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
@@ -192,6 +205,51 @@ public:
         }
     }
 
+    static bool save_config(const std::string& path){
+        std::filesystem::create_directories(std::filesystem::path(path).parent_path());
+        HANDLE file = CreateFileA(path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
+        if(file==INVALID_HANDLE_VALUE) return false;
+        std::string out;
+        
+        for(auto& [config, value] : configs){
+            out += std::to_string(static_cast<int>(config));
+            out += ": ";
+            out += value;
+            out += '\n';
+        }
+        DWORD written;
+        bool success = WriteFile(file, out.data(), static_cast<DWORD>(out.size()), &written, nullptr);
+        CloseHandle(file);
+        return success && written == out.size();
+    }
+
+    static void load_config(const std::string& path){
+        std::ifstream in(path);
+        std::string line;
+        while(std::getline(in, line)){
+            const size_t separator = line.find(':');
+            if(separator == std::string::npos) continue;
+
+            std::string config_text = line.substr(0, separator);
+            const std::string value = line.substr(separator + 1);
+
+            try{
+                int config_number = std::stoi(config_text);
+                const CONFIGS config = static_cast<CONFIGS>(config_number);
+                std::string trimmed_value = value;
+
+                while(!trimmed_value.empty() && std::isspace(static_cast<unsigned char>(trimmed_value.front()))){
+                    trimmed_value.erase(trimmed_value.begin());
+                }
+
+                configs[config] = trimmed_value;
+            }
+            catch(const std::exception&){
+                continue;
+            }
+        }
+    }
+
 
     static std::vector<std::filesystem::path> GetAllFiles(std::filesystem::path path){
         std::vector<std::filesystem::path> all_files;
@@ -200,7 +258,7 @@ public:
         std::filesystem::recursive_directory_iterator it(path);
         
 
-        std::filesystem::recursive_directory_iterator end; //idk if this is a good way to do it but its all i could think of :c
+        std::filesystem::recursive_directory_iterator end;
         while(it != end){
             all_files.push_back(it->path());
             ++it;
@@ -209,6 +267,7 @@ public:
         
     }
 
+    //ai function cz idk how work pugixml and i dont wanna learn that bs ngl.
     static bool modify_vcxproj(const std::string& cwd, std::string& filename) {
         std::vector<std::filesystem::path> all_files = GetAllFiles(cwd);
 

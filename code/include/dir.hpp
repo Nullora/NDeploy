@@ -13,6 +13,7 @@
 #include<hash.hpp>
 #include<compression.hpp>
 #include<statics.hpp>
+#include<file.hpp>
 
 
 
@@ -95,11 +96,12 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::string content_hash = nhash::SHA256File(filerep.og_path);
 
         //debug
-        #ifdef DIR_DEBUG
+        if(FileHandle::configs[CONFIGS::DIR_DEBUG]=="1"){
             std::cout << "recalculated hash: [" << content_hash << "]\n";
             std::cout << "stored hash: [" << filerep.content_hash << "]\n";
             std::cout << "hash length: " << content_hash.size() << '\n';
-        #endif
+        }
+        
 
         //verify calculated hash and reported hash. could have been tampered with, u never know :3
         if(content_hash != filerep.content_hash) return INVALID_HASH;
@@ -145,12 +147,12 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::string filename = mdata::ReadMData(object_path.string(), alt_stream, "OG_FILENAME");
 
         //DIR_DEBUG
-        #ifdef DIR_DEBUG
+        if(FileHandle::configs[CONFIGS::DIR_DEBUG]=="1"){
             std::cout << "rep_path: " << rep_path << '\n';
             std::cout << "import path: "<< target << "\\" << filename << '\n';
             std::cout << "object hash: " << hash << '\n';
             std::cout << "exists: " << std::filesystem::exists(object_path) << '\n';
-        #endif
+        }
 
         if (!std::filesystem::exists(object_path)) return INVALID_FILE;
 
@@ -162,9 +164,9 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::string size_str = mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE");
 
         //DIR_DEBUG
-        #ifdef DIR_DEBUG
+        if(FileHandle::configs[CONFIGS::DIR_DEBUG]=="1"){
             std::cout << "OG_SIZE: [" << size_str << "]\n";
-        #endif
+        }
 
         size_t original_size = std::stoull(size_str);
         std::vector<unsigned char> bytes;
@@ -186,16 +188,16 @@ namespace dir{ //finding files, filtering files, and managing original files and
         FileHandle::id_fileid_map[id].push_back(info);
 
         //debug
-        #ifdef DIR_DEBUG
+        if(FileHandle::configs[CONFIGS::DIR_DEBUG]=="1"){
             std::cout << "recalculated file path (id_fileid_map): "<<mdata::GetPathFromId(info)<<'\n';
-        #endif
+        }
 
         if(!success && written != bytes.size()) return FAILURE;
         
         //if in vs_solution, modify "project".vcxproj to add item to solution.
-        #ifdef VS_SOLUTION
+        if(FileHandle::configs[CONFIGS::VS_SOLUTION]=="1"){
             FileHandle::modify_vcxproj(std::filesystem::current_path().string(), target);
-        #endif
+        }
         return SUCCESS;
     }
 
@@ -271,14 +273,14 @@ namespace dir{ //finding files, filtering files, and managing original files and
         std::string size_str = mdata::ReadMData(object_path.string(), alt_stream, "OG_SIZE");
 
         //debug, i like the look of massive blocks of text in my terminal so i can act cool on instagram stories :3
-        #ifdef DIR_DEBUG
+        if(FileHandle::configs[CONFIGS::DIR_DEBUG]=="1"){
             std::cout << "rep_path: " << rep_path << '\n';
             std::cout << "stored hash: " << stored_hash << '\n';
             std::cout << "recalculated hash: " << calculated_hash << '\n';
             std::cout << "object_path: " << object_path.string() << '\n';
             std::cout << "exists: " << std::filesystem::exists(object_path) << '\n';
             std::cout << "OG_SIZE: [" << size_str << "]\n";
-        #endif
+        }
         size_t original_size = std::stoull(size_str);
 
         //uncompress and get raw bytes
