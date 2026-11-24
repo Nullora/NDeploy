@@ -42,7 +42,6 @@ int main(int argc, char* argv[]){
 
     //> `ndep push {libname} -last` uses the last source of push instead of rewriting `ndep push {libname} {source_of_push}` everytime
     //> `ndep update {libname} -v:1.2.0` updates the library to a specific version instead of last version
-    //> `ndep sign {filename} {libname} -fs` force sign, overwrites already signed files with new data.
     //> WARNING: keep in mind these arent implemented yet, only ideas for the future
 
     

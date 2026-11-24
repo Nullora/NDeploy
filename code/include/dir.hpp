@@ -378,7 +378,6 @@ namespace dir{ //finding files, filtering files, and managing original files and
         RETURN code = FAILURE;
 
         for(auto& [id, placeholder] : FileHandle::group_id_map[group]){
-            //we need some way of preserving the filename or automating the naming.
             code = ImportRepositoryObject(id, std::filesystem::current_path().string(), rep_path, alt_stream);
         }
         return code;

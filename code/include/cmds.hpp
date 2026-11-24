@@ -1,4 +1,6 @@
 #pragma once
+//w = working.
+//b = broken.
 
 enum class CMDS {
     //SINGLE-FILE
@@ -8,20 +10,30 @@ enum class CMDS {
     UPDATE, //w
     PUSH, //w
     RENAME, //w
+
+    PURGE,
+    DELETELIB,
+
     //DEBUG
     ALL, //w
     RCALC, //w
     FIND, //w
+    CWD, //w
+    CWDF, //w
+
     //GROUP
     ADDTOGROUP, //w
     IMPORTGROUP, //w
     UPDATEGROUP, //w
     ALLG, //w
-    ALLIG, 
+    ALLIG, //w
+    
+    PURGEGROUP,
+    DELETEGROUP,
     
     //CONFIG
-    CONFIG,
-    LISTCONFIG,
+    CONFIG, //w
+    LISTCONFIG, //w
 
     UNK
 };

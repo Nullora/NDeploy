@@ -42,10 +42,15 @@ Updates current imported library from local repository objects. (later ill track
 ```bash
 ndep all
 ```
-Shows every signed file in CWD along with every signed file in the local hash index. (Mainly a debugger, you could use it to check library spelling if u forgot and remember every imported library in cwd.)
+Shows every library in the local hash index. (Mainly a debugger, you could use it to check library spelling if u forgot.)
 
 ```bash
-ndep rcalc
+ndep cwd
+```
+Shows signed files in the current working directory along with their library IDs and content hashes.
+
+```bash
+ndep rcalc #recalculate
 ```
 Manually recalculate content hash for every signed file in working directory. (Mainly a debugger, useful for checking if a commands isnt updating metadata correctly)
 
@@ -54,6 +59,11 @@ ndep find {libname}
 ```
 Find where every registered copy of {libname} currently is.
 
+```bash
+ndep cwdf {library_name} #current working directory find
+```
+Finds the current-working-directory path of a signed file with the given library ID (good for manually finding ghost libraries)
+
 
 ```bash
 ndep rename {old_name} {new_name}
@@ -61,27 +71,27 @@ ndep rename {old_name} {new_name}
 Rename a library and all of its registered distributed copies.
 
 ```bash
-ndep atg {group_name} {library_name}
+ndep atg {group_name} {library_name} # add to group
 ```
 Adds `{library_name}` to `{group_name}`. Groups are stored in the local `.ndep` index and can contain multiple libraries.
 
 ```bash
-ndep importg {group_name}
+ndep importg {group_name} #import group
 ```
 Imports every library in `{group_name}` using each library's stored original filename.
 
 ```bash
-ndep updateg {group_name}
+ndep updateg {group_name} #update group
 ```
 Updates every imported library in `{group_name}` from the latest repository objects.
 
 ```bash
-ndep allg
+ndep allg #all groups
 ```
 Lists every group in the local group index.
 
 ```bash
-ndep allig {group_name}
+ndep allig {group_name} #all in group
 ```
 Lists every library ID contained in `{group_name}`.
 

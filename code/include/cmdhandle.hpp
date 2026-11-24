@@ -62,16 +62,16 @@ namespace cmd{
                 return "Updated library successfully. \n";
             
             case CMDS::ALL:
+                for(auto& [id, hash] : FileHandle::id_hash_map){
+                    ret += "Hash Index >> " + id + ": " + hash + '\n';
+                }
+                return ret;
+
+            case CMDS::CWD:
                 signed_files = dir::GetAllSignedFiles(std::filesystem::current_path(), alt_stream);
                 for(auto& file : signed_files){
                     ret += "CWD >> " + mdata::ReadMData(file.string(), alt_stream, "ID") + ": " + mdata::ReadMData(file.string(), alt_stream, "CONTENT_HASH") + '\n';
                 }
-                for(auto& [id, hash] : FileHandle::id_hash_map){
-                    ret += "Hash Index >> " + id + ": " + hash + '\n';
-                }
-                #ifdef DIR_DEBUG
-                    ret += "Libraries could be signed and in CWD but not in the official repository, causing `ghost libraries`. theres no fix for this yet, but as developement continues, a solution will be found. \n";
-                #endif
                 return ret;
             
             case CMDS::RCALC:
@@ -90,6 +90,15 @@ namespace cmd{
 
             case CMDS::FIND:
                 return dir::findAllLibraryPaths(variables[0]);
+
+            case CMDS::CWDF:
+                signed_files = dir::GetAllSignedFiles(std::filesystem::current_path(), alt_stream);
+                for(auto& file : signed_files){
+                    if(mdata::ReadMData(file.string(), alt_stream, "ID")==variables[0]){
+                        ret += variables[0] + " >> " + file.string() + "\n";
+                    }
+                }
+                return ret;
 
             case CMDS::ADDTOGROUP:
                 dir_error = dir::AddFileToGroup(variables[1], variables[0]);

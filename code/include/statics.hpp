@@ -31,6 +31,8 @@ public:
         m["allig"] = CMDS::ALLIG;
         m["config"] = CMDS::CONFIG;
         m["lconfig"] = CMDS::LISTCONFIG;
+        m["cwd"] = CMDS::CWD;
+        m["cwdf"] = CMDS::CWDF;
         return m;
     }();
 
