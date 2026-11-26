@@ -172,6 +172,7 @@ public:
         if(file==INVALID_HANDLE_VALUE) return false;
         std::string out;
         for(auto& [group, it] : group_id_map){
+            first = true;
             out += "\ngim:" + group + " ";
             for(auto& [id, placeholder] : it){
                 if(first) {out += id; first=false;}
