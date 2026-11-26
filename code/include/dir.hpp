@@ -363,11 +363,11 @@ namespace dir{ //finding files, filtering files, and managing original files and
         if(grp==FileHandle::group_id_map.end()) newGroup=true;
 
         //check for existance of id in group.
-        auto it = FileHandle::group_id_map[group].find(id->first);
+        auto it = FileHandle::group_id_map[group].find(name);
         if(it!=FileHandle::group_id_map[group].end()) return FILE_EXISTS;
 
-        //append tag to group / new group
-        FileHandle::group_id_map[group][id->first] = 1;
+        //append id to group / new group
+        FileHandle::group_id_map[group][name] = 1;
         //if(newGroup) return NEW_GROUP;
         return SUCCESS;
     }
