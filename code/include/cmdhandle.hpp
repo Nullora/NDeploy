@@ -112,6 +112,8 @@ namespace cmd{
 
             case CMDS::UPDATEGROUP:
                 dir_error = dir::UpdateGroup(variables[0], rep_path, alt_stream);
+                if(dir_error!=dir::SUCCESS) return handler::HandleErrorMessage(dir_error);
+                return "Updated group. \n";
 
             case CMDS::ALLG:
                 for(auto& [group, it] : FileHandle::group_id_map){
@@ -148,7 +150,7 @@ namespace cmd{
                         }
                     );
                     if(it != statics::configs_map.end()){
-                        ret += "-" + it->first + " = " + value + "\n";
+                        ret += "> " + it->first + " = " + value + "\n";
                     }else{
                         ret += "-unknown_config="+value+"\n";
                     }

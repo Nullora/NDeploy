@@ -1,4 +1,5 @@
 //to be fully honest, most of this sha256 hasher is made with ai. im not gonna dive into cryptography, this was supposed to be a quick tool this is already too far lol
+//local custom library i use.
 #pragma once
 #include <Windows.h>
 #include <bcrypt.h>

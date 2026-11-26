@@ -121,7 +121,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
 
         //original size -> metadata of repo object for decompression of object later
         mdata::WriteMData(object_path.string(), alt_stream, "OG_SIZE", std::to_string(bytes.size()));
-        mdata::WriteMData(object_path.string(), alt_stream, "OG_FILENAME", filerep.og_path.string()); 
+        mdata::WriteMData(object_path.string(), alt_stream, "OG_FILENAME", filerep.og_path.filename().string()); 
         //apply name + version_id to repository object's alternate stream
         bool succ = mdata::ApplyHeaderData(object_path.string(),alt_stream,filerep.id,"","REP_LIB",filerep.version_id);
 
@@ -173,7 +173,7 @@ namespace dir{ //finding files, filtering files, and managing original files and
         if(!compression::Uncompress(compressed_bytes, bytes, original_size)) return COMPRESSION_ERROR;
 
         //write bytes to target file
-        target += "/" + filename;
+        target += "\\" + filename;
         HANDLE file = CreateFileA(target.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr); 
         if(file==INVALID_HANDLE_VALUE) return INVALID_HANDLE;
         DWORD written;
